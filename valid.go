@@ -15,7 +15,7 @@ func init() {
 		"min":      min,
 		"max":      max,
 		//"range":        Range,
-		//"alpha":        Alpha,
+		"alpha":        alpha,
 		//"numeric":      Numeric,
 		//"alphanumeric": AlphaNumeric,
 		//"alphadash":    AlphaDash,

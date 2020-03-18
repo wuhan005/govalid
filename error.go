@@ -10,12 +10,14 @@ type errContext struct {
 }
 
 var errorTemplate = map[string]string{
-	"required":      "不能为空",
-	"min":           "应大于%v",
-	"max":           "应小于%v",
-	"_ruleNotFound": "检查规则未找到",
-	"_unknown":      "未知错误",
-	"_paramError":   "检查规则入参错误",
+	"required":        "不能为空",
+	"min":             "应大于%v",
+	"max":             "应小于%v",
+	"alpha":           "必须只包含字母",
+	"_ruleNotFound":   "检查规则未找到",
+	"_unknown":        "未知错误",
+	"_paramError":     "检查规则入参错误",
+	"_valueTypeError": "参数类型不正确",
 }
 
 func getErrorTemplate(key string) string {

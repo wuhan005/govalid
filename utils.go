@@ -83,7 +83,7 @@ func minOrMax(c ruleContext, flag string) *errContext {
 
 		value, err := strconv.ParseFloat(c.params[0], 64)
 		if err != nil {
-			ctx.Tmpl = getErrorTemplate("_paramError")
+			ctx.Tmpl = getErrorTemplate("_valueTypeError")
 			ctx.Message = ctx.Tmpl
 			return ctx
 		}
@@ -99,6 +99,26 @@ func minOrMax(c ruleContext, flag string) *errContext {
 			}
 		}
 		return nil
+	}
+	return nil
+}
+
+func alpha(c ruleContext) *errContext {
+	ctx := &errContext{
+		Tmpl:       getErrorTemplate(c.rule),
+		Message:    getErrorTemplate(c.rule),
+		Value:      c.value,
+		LimitValue: c.params,
+	}
+	if reflect.ValueOf(c.value).Kind() != reflect.String {
+		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Message = ctx.Tmpl
+		return ctx
+	}
+	for _, v := range c.value.(string) {
+		if v < 'A' || (v > 'Z' && v < 'a') || v > 'z' {
+			return ctx
+		}
 	}
 	return nil
 }
