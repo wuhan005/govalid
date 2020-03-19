@@ -7,7 +7,7 @@ import (
 
 type registerForm struct {
 	Name string `valid:"required;username" label:"昵称"`
-	ID   int    `valid:"required;min:5;max:10" label:"用户编号"`
+	ID   int    `valid:"required;min:0;max:999" label:"用户编号"`
 	Mail string `valid:"email" label:"电子邮箱"`
 	Card string `valid:"idcard" label:""`
 }
