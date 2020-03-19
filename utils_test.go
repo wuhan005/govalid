@@ -13,7 +13,7 @@ func Test_required(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "用户名不能为空")
+	assert.Equal(t, v.Errors[0].Message, "用户名不能为空")
 
 	s = struct {
 		Name string `valid:"required" label:"用户名"`
@@ -22,7 +22,7 @@ func Test_required(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_min(t *testing.T) {
@@ -33,7 +33,7 @@ func Test_min(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "评分应大于0")
+	assert.Equal(t, v.Errors[0].Message, "评分应大于0")
 
 	s = struct {
 		Score int `valid:"min:0" label:"评分"`
@@ -42,7 +42,7 @@ func Test_min(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_max(t *testing.T) {
@@ -53,7 +53,7 @@ func Test_max(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "得分应小于100")
+	assert.Equal(t, v.Errors[0].Message, "得分应小于100")
 
 	s = struct {
 		Score int `valid:"max:100" label:"得分"`
@@ -62,7 +62,7 @@ func Test_max(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_alpha(t *testing.T) {
@@ -73,7 +73,7 @@ func Test_alpha(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "昵称必须只包含字母")
+	assert.Equal(t, v.Errors[0].Message, "昵称必须只包含字母")
 
 	s = struct {
 		Name string `valid:"alpha" label:"昵称"`
@@ -82,7 +82,7 @@ func Test_alpha(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Name string `valid:"alpha" label:"昵称"`
@@ -91,7 +91,7 @@ func Test_alpha(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_alphanumeric(t *testing.T) {
@@ -102,7 +102,7 @@ func Test_alphanumeric(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "昵称只能含有字母或数字")
+	assert.Equal(t, v.Errors[0].Message, "昵称只能含有字母或数字")
 
 	s = struct {
 		Name string `valid:"alphanumeric" label:"昵称"`
@@ -111,7 +111,7 @@ func Test_alphanumeric(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Name string `valid:"alphanumeric" label:"昵称"`
@@ -120,7 +120,7 @@ func Test_alphanumeric(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 }
 
@@ -132,7 +132,7 @@ func Test_alphaDash(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "昵称只含有数字或字母以及下划线")
+	assert.Equal(t, v.Errors[0].Message, "昵称只含有数字或字母以及下划线")
 
 	s = struct {
 		Name string `valid:"alphadash" label:"昵称"`
@@ -141,7 +141,7 @@ func Test_alphaDash(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Name string `valid:"alphadash" label:"昵称"`
@@ -150,7 +150,7 @@ func Test_alphaDash(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_userName(t *testing.T) {
@@ -161,7 +161,7 @@ func Test_userName(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "昵称的第一个字符必须为字母")
+	assert.Equal(t, v.Errors[0].Message, "昵称的第一个字符必须为字母")
 
 	s = struct {
 		Name string `valid:"username" label:"昵称"`
@@ -170,7 +170,7 @@ func Test_userName(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "昵称的最后一个字符不能为下划线")
+	assert.Equal(t, v.Errors[0].Message, "昵称的最后一个字符不能为下划线")
 
 	s = struct {
 		Name string `valid:"username" label:"昵称"`
@@ -179,7 +179,7 @@ func Test_userName(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Name string `valid:"username" label:"昵称"`
@@ -188,7 +188,7 @@ func Test_userName(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_email(t *testing.T) {
@@ -199,7 +199,7 @@ func Test_email(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "不是合法的电子邮箱格式")
+	assert.Equal(t, v.Errors[0].Message, "不是合法的电子邮箱格式")
 
 	s2 := struct {
 		Email string `valid:"email" label:"Mailll"`
@@ -208,7 +208,7 @@ func Test_email(t *testing.T) {
 	}
 	v = New(s2)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "Mailll不是合法的电子邮箱格式")
+	assert.Equal(t, v.Errors[0].Message, "Mailll不是合法的电子邮箱格式")
 
 	s = struct {
 		Email string `valid:"email" label:""`
@@ -217,7 +217,7 @@ func Test_email(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Email string `valid:"email" label:""`
@@ -226,7 +226,7 @@ func Test_email(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_ipv4(t *testing.T) {
@@ -237,7 +237,7 @@ func Test_ipv4(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "不是合法的 IPv4 地址格式")
+	assert.Equal(t, v.Errors[0].Message, "不是合法的 IPv4 地址格式")
 
 	s2 := struct {
 		IP string `valid:"ipv4" label:"IPIPIPP"`
@@ -246,7 +246,7 @@ func Test_ipv4(t *testing.T) {
 	}
 	v = New(s2)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "IPIPIPP不是合法的 IPv4 地址格式")
+	assert.Equal(t, v.Errors[0].Message, "IPIPIPP不是合法的 IPv4 地址格式")
 
 	s = struct {
 		IP string `valid:"ipv4" label:""`
@@ -255,7 +255,7 @@ func Test_ipv4(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		IP string `valid:"ipv4" label:""`
@@ -264,7 +264,7 @@ func Test_ipv4(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		IP string `valid:"ipv4" label:""`
@@ -273,7 +273,7 @@ func Test_ipv4(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_mobile(t *testing.T) {
@@ -284,7 +284,7 @@ func Test_mobile(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的手机号")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的手机号")
 
 	s = struct {
 		Phone string `valid:"mobile" label:"电话号码"`
@@ -293,7 +293,7 @@ func Test_mobile(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的手机号")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的手机号")
 
 	s = struct {
 		Phone string `valid:"mobile" label:"电话号码"`
@@ -302,7 +302,7 @@ func Test_mobile(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的手机号")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的手机号")
 
 	s = struct {
 		Phone string `valid:"mobile" label:"电话号码"`
@@ -311,7 +311,7 @@ func Test_mobile(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的手机号")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的手机号")
 
 	s = struct {
 		Phone string `valid:"mobile" label:"电话号码"`
@@ -320,7 +320,7 @@ func Test_mobile(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_tel(t *testing.T) {
@@ -331,7 +331,7 @@ func Test_tel(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的座机号码")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的座机号码")
 
 	s = struct {
 		Phone string `valid:"tel" label:"电话号码"`
@@ -340,7 +340,7 @@ func Test_tel(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的座机号码")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的座机号码")
 
 	s = struct {
 		Phone string `valid:"tel" label:"电话号码"`
@@ -349,7 +349,7 @@ func Test_tel(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的座机号码")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的座机号码")
 
 	s = struct {
 		Phone string `valid:"tel" label:"电话号码"`
@@ -358,7 +358,7 @@ func Test_tel(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Phone string `valid:"tel" label:"电话号码"`
@@ -367,7 +367,7 @@ func Test_tel(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_phone(t *testing.T) {
@@ -378,7 +378,7 @@ func Test_phone(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的号码")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的号码")
 
 	s = struct {
 		Phone string `valid:"phone" label:"电话号码"`
@@ -387,7 +387,7 @@ func Test_phone(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的号码")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的号码")
 
 	s = struct {
 		Phone string `valid:"phone" label:"电话号码"`
@@ -396,7 +396,7 @@ func Test_phone(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "电话号码不是合法的号码")
+	assert.Equal(t, v.Errors[0].Message, "电话号码不是合法的号码")
 
 	s = struct {
 		Phone string `valid:"phone" label:"电话号码"`
@@ -405,7 +405,7 @@ func Test_phone(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Phone string `valid:"phone" label:"电话号码"`
@@ -414,7 +414,7 @@ func Test_phone(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }
 
 func Test_idCard(t *testing.T) {
@@ -425,7 +425,7 @@ func Test_idCard(t *testing.T) {
 	}
 	v := New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "身份证号不是合法的身份证号")
+	assert.Equal(t, v.Errors[0].Message, "身份证号不是合法的身份证号")
 
 	s = struct {
 		Phone string `valid:"idcard" label:"身份证号"`
@@ -434,7 +434,7 @@ func Test_idCard(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "身份证号不是合法的身份证号")
+	assert.Equal(t, v.Errors[0].Message, "身份证号不是合法的身份证号")
 
 	s = struct {
 		Phone string `valid:"idcard" label:"身份证号"`
@@ -443,7 +443,7 @@ func Test_idCard(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), false)
-	assert.Equal(t, v.errors[0].Message, "身份证号不是合法的身份证号")
+	assert.Equal(t, v.Errors[0].Message, "身份证号不是合法的身份证号")
 
 	s = struct {
 		Phone string `valid:"idcard" label:"身份证号"`
@@ -452,7 +452,7 @@ func Test_idCard(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Phone string `valid:"idcard" label:"身份证号"`
@@ -461,5 +461,5 @@ func Test_idCard(t *testing.T) {
 	}
 	v = New(s)
 	assert.Equal(t, v.Check(), true)
-	assert.Equal(t, len(v.errors), 0)
+	assert.Equal(t, len(v.Errors), 0)
 }

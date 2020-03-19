@@ -52,8 +52,8 @@ func New(inputStruct interface{}) *valid {
 	}
 
 	return &valid{
-		fields: fields,
-		errors: make([]errContext, 0),
+		Fields: fields,
+		Errors: make([]errContext, 0),
 	}
 }
 

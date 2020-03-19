@@ -1,8 +1,8 @@
 package govalid
 
 type valid struct {
-	fields []Field
-	errors []errContext
+	Fields []Field
+	Errors []errContext
 }
 
 // CheckFunc is the type of checker function.
@@ -32,12 +32,12 @@ func init() {
 
 // Check: check the struct value.
 func (v *valid) Check() bool {
-	for _, field := range v.fields {
+	for _, field := range v.Fields {
 		for _, r := range field.ruleCtx {
 			ruleFunc, exist := Checkers[r.rule]
 			if !exist {
 				// checker function not found
-				v.errors = append(v.errors, errContext{
+				v.Errors = append(v.Errors, errContext{
 					Field:      field.name,
 					Label:      field.label,
 					Tmpl:       GetErrorTemplate("_ruleNotFound"),
@@ -53,10 +53,10 @@ func (v *valid) Check() bool {
 				// set field name and value here.
 				err.Field = field.name
 				err.Label = field.label
-				v.errors = append(v.errors, *err)
+				v.Errors = append(v.Errors, *err)
 			}
 		}
 	}
 	// if the error is not empty, return false
-	return len(v.errors) == 0
+	return len(v.Errors) == 0
 }
