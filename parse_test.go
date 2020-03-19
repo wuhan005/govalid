@@ -1,7 +1,7 @@
 package govalid
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -13,16 +13,21 @@ type registerForm struct {
 }
 
 func TestNew(t *testing.T) {
-	r := registerForm{
-		Name: "e99e99",
-		ID:   9,
-		Mail: "e99@e.99",
-		Card: "1231232",
-	}
-	v := New(r)
-	if !v.Check() {
-		for _, err := range v.errors {
-			fmt.Println(err.Message)
-		}
-	}
+	s1 := struct {
+		Name string `valid:`
+	}{}
+	s2 := struct {
+		Name string `valid:""`
+	}{}
+	s3 := struct {
+		Name string `valid:"abc"`
+	}{}
+	s4 := struct {
+		Name string `valid111:"abc"`
+	}{}
+
+	assert.Equal(t, New(s1).Check(), true)
+	assert.Equal(t, New(s2).Check(), true)
+	assert.Equal(t, New(s3).Check(), false)
+	assert.Equal(t, New(s4).Check(), true)
 }

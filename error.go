@@ -16,9 +16,9 @@ var ErrorTemplate = map[string]string{
 	"max":             "应小于%v",
 	"alpha":           "必须只包含字母",
 	"alphanumeric":    "只能含有字母或数字",
-	"alphaDash":       "只含有数字或字母以及下划线",
+	"alphadash":       "只含有数字或字母以及下划线",
 	"firstCharAlpha":  "的第一个字符必须为字母",
-	"lastUnderline":   "最后一个字符不能为下划线",
+	"lastUnderline":   "的最后一个字符不能为下划线",
 	"email":           "不是合法的电子邮箱格式",
 	"ipv4":            "不是合法的 IPv4 地址格式",
 	"mobile":          "不是合法的手机号",
@@ -34,8 +34,8 @@ var ErrorTemplate = map[string]string{
 // NewErrorContext return a error context.
 func NewErrorContext(c ruleContext) *errContext {
 	return &errContext{
-		Tmpl:       getErrorTemplate(c.rule),
-		Message:    getErrorTemplate(c.rule), // default message is the raw template
+		Tmpl:       GetErrorTemplate(c.rule),
+		Message:    GetErrorTemplate(c.rule), // default message is the raw template
 		Value:      c.value,
 		LimitValue: c.params,
 	}
@@ -46,7 +46,8 @@ func (e *errContext) SetMessage(msg string) {
 	e.Message = msg
 }
 
-func getErrorTemplate(key string) string {
+// GetErrorTemplate return the template of giving rule name.
+func GetErrorTemplate(key string) string {
 	if value, ok := ErrorTemplate[key]; ok {
 		return value
 	} else {

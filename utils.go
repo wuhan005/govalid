@@ -38,7 +38,7 @@ func max(c ruleContext) *errContext {
 func minOrMax(c ruleContext, flag string) *errContext {
 	ctx := NewErrorContext(c)
 	if len(c.params) != 1 {
-		ctx.Tmpl = getErrorTemplate("_paramError")
+		ctx.Tmpl = GetErrorTemplate("_paramError")
 		ctx.SetMessage(c.field.label + ctx.Tmpl)
 		return ctx
 	}
@@ -49,7 +49,7 @@ func minOrMax(c ruleContext, flag string) *errContext {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		limit, err := strconv.ParseInt(limitStr, 10, 64)
 		if err != nil {
-			ctx.Tmpl = getErrorTemplate("_paramError")
+			ctx.Tmpl = GetErrorTemplate("_paramError")
 			ctx.SetMessage(c.field.label + ctx.Tmpl)
 			return ctx
 		}
@@ -70,14 +70,14 @@ func minOrMax(c ruleContext, flag string) *errContext {
 	case reflect.Float32, reflect.Float64:
 		limit, err := strconv.ParseFloat(limitStr, 64)
 		if err != nil {
-			ctx.Tmpl = getErrorTemplate("_paramError")
+			ctx.Tmpl = GetErrorTemplate("_paramError")
 			ctx.SetMessage(c.field.label + ctx.Tmpl)
 			return ctx
 		}
 
 		value, err := strconv.ParseFloat(c.params[0], 64)
 		if err != nil {
-			ctx.Tmpl = getErrorTemplate("_valueTypeError")
+			ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 			ctx.SetMessage(c.field.label + ctx.Tmpl)
 			return ctx
 		}
@@ -100,12 +100,13 @@ func minOrMax(c ruleContext, flag string) *errContext {
 func alpha(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.ValueOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(c.field.label + ctx.Tmpl)
 		return ctx
 	}
 	for _, v := range c.value.(string) {
 		if v < 'A' || (v > 'Z' && v < 'a') || v > 'z' {
+			ctx.SetMessage(c.field.label + ctx.Tmpl)
 			return ctx
 		}
 	}
@@ -115,12 +116,13 @@ func alpha(c ruleContext) *errContext {
 func alphaNumeric(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(c.field.label + ctx.Tmpl)
 		return ctx
 	}
 	for _, v := range c.value.(string) {
 		if ('Z' < v || v < 'A') && ('z' < v || v < 'a') && ('9' < v || v < '0') {
+			ctx.SetMessage(c.field.label + ctx.Tmpl)
 			return ctx
 		}
 	}
@@ -130,11 +132,16 @@ func alphaNumeric(c ruleContext) *errContext {
 func alphaDash(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(c.field.label + ctx.Tmpl)
 		return ctx
 	}
-	if !regexp.MustCompile(`^\w+$`).MatchString(c.value.(string)) {
+	value := c.value.(string)
+	if value == "" {
+		return nil
+	}
+
+	if !regexp.MustCompile(`^\w+$`).MatchString(value) {
 		ctx.SetMessage(c.field.label + ctx.Tmpl)
 		return ctx
 	}
@@ -144,14 +151,21 @@ func alphaDash(c ruleContext) *errContext {
 func userName(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(ctx.Tmpl)
 		return ctx
 	}
+
+	value := c.value.(string)
+	if value == "" {
+		return nil
+	}
+
 	// is alpha dash
 	tmp := c
 	tmp.rule = "alphaDash"
 	if errCtx := alphaDash(tmp); errCtx != nil {
+		errCtx.SetMessage(c.field.label + errCtx.Tmpl)
 		return errCtx
 	}
 
@@ -160,15 +174,15 @@ func userName(c ruleContext) *errContext {
 	tmp.value = fmt.Sprintf("%c", c.value.(string)[0])
 	tmp.rule = "alpha"
 	if errCtx := alpha(tmp); errCtx != nil {
-		errCtx.Tmpl = getErrorTemplate("firstCharAlpha")
-		errCtx.SetMessage(errCtx.Tmpl)
+		errCtx.Tmpl = GetErrorTemplate("firstCharAlpha")
+		errCtx.SetMessage(c.field.label + errCtx.Tmpl)
 		return errCtx
 	}
 
 	// last char can't be dash
 	if strings.HasSuffix(c.value.(string), "_") {
-		ctx.Tmpl = getErrorTemplate("lastUnderline")
-		ctx.SetMessage(ctx.Tmpl)
+		ctx.Tmpl = GetErrorTemplate("lastUnderline")
+		ctx.SetMessage(c.field.label + ctx.Tmpl)
 		return ctx
 	}
 	return nil
@@ -177,7 +191,7 @@ func userName(c ruleContext) *errContext {
 func email(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(ctx.Tmpl)
 		return ctx
 	}
@@ -196,7 +210,7 @@ func email(c ruleContext) *errContext {
 func ipv4(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(ctx.Tmpl)
 		return ctx
 	}
@@ -218,7 +232,7 @@ var MobilePattern = regexp.MustCompile(`^((\+86)|(86))?(1(([35][0-9])|[8][0-9]|[
 func mobile(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(ctx.Tmpl)
 		return ctx
 	}
@@ -236,7 +250,7 @@ func mobile(c ruleContext) *errContext {
 func tel(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(ctx.Tmpl)
 		return ctx
 	}
@@ -255,9 +269,9 @@ func phone(c ruleContext) *errContext {
 	telErr := tel(c)
 	mobileErr := mobile(c)
 
-	if telErr != nil || mobileErr != nil {
+	if telErr != nil && mobileErr != nil {
 		ctx := NewErrorContext(c)
-		ctx.Tmpl = getErrorTemplate("phone")
+		ctx.Tmpl = GetErrorTemplate("phone")
 		ctx.SetMessage(c.field.label + ctx.Tmpl)
 		return ctx
 	}
@@ -267,7 +281,7 @@ func phone(c ruleContext) *errContext {
 func idCard(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
-		ctx.Tmpl = getErrorTemplate("_valueTypeError")
+		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
 		ctx.SetMessage(ctx.Tmpl)
 		return ctx
 	}

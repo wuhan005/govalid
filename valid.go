@@ -40,8 +40,8 @@ func (v *valid) Check() bool {
 				v.errors = append(v.errors, errContext{
 					Field:      field.name,
 					Label:      field.label,
-					Tmpl:       getErrorTemplate("_ruleNotFound"),
-					Message:    getErrorTemplate("_ruleNotFound"),
+					Tmpl:       GetErrorTemplate("_ruleNotFound"),
+					Message:    GetErrorTemplate("_ruleNotFound"),
 					Value:      field.value,
 					LimitValue: r.params,
 				})
