@@ -20,9 +20,8 @@ func require(c ruleContext) *errContext {
 		if c.value.(string) == "" {
 			ctx.SetMessage(c.field.label + ctx.Tmpl)
 			return ctx
-		} else {
-			return nil
 		}
+		return nil
 	}
 	return nil
 }

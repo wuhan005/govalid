@@ -454,7 +454,6 @@ func Test_idCard(t *testing.T) {
 	assert.Equal(t, v.Check(), true)
 	assert.Equal(t, len(v.errors), 0)
 
-
 	s = struct {
 		Phone string `valid:"idcard" label:"身份证号"`
 	}{

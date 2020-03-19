@@ -50,7 +50,6 @@ func (e *errContext) SetMessage(msg string) {
 func GetErrorTemplate(key string) string {
 	if value, ok := ErrorTemplate[key]; ok {
 		return value
-	} else {
-		return ErrorTemplate["_unknown"]
 	}
+	return ErrorTemplate["_unknown"]
 }

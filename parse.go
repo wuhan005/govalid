@@ -27,7 +27,7 @@ type ruleContext struct {
 	value  interface{}
 }
 
-// New: return a govaild instance
+// New return a govaild instance
 func New(inputStruct interface{}) *valid {
 	structType := reflect.TypeOf(inputStruct)
 	structValue := reflect.ValueOf(inputStruct)
