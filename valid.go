@@ -5,8 +5,10 @@ type valid struct {
 	errors []errContext
 }
 
+// CheckFunc is the type of checker function.
 type CheckFunc func(c ruleContext) *errContext
 
+// Checkers is the function of checkers.
 var Checkers map[string]CheckFunc
 
 func init() {
@@ -28,6 +30,7 @@ func init() {
 	}
 }
 
+// Check: check the struct value.
 func (v *valid) Check() bool {
 	for _, field := range v.fields {
 		for _, r := range field.ruleCtx {

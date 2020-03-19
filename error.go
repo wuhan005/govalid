@@ -9,7 +9,8 @@ type errContext struct {
 	LimitValue interface{}
 }
 
-var errorTemplate = map[string]string{
+// ErrorTemplate is the error message template.
+var ErrorTemplate = map[string]string{
 	"required":        "不能为空",
 	"min":             "应大于%v",
 	"max":             "应小于%v",
@@ -30,6 +31,7 @@ var errorTemplate = map[string]string{
 	"_valueTypeError": "参数类型不正确",
 }
 
+// NewErrorContext return a error context.
 func NewErrorContext(c ruleContext) *errContext {
 	return &errContext{
 		Tmpl:       getErrorTemplate(c.rule),
@@ -39,14 +41,15 @@ func NewErrorContext(c ruleContext) *errContext {
 	}
 }
 
+// SetMessage set the error context's message.
 func (e *errContext) SetMessage(msg string) {
 	e.Message = msg
 }
 
 func getErrorTemplate(key string) string {
-	if value, ok := errorTemplate[key]; ok {
+	if value, ok := ErrorTemplate[key]; ok {
 		return value
 	} else {
-		return errorTemplate["_unknown"]
+		return ErrorTemplate["_unknown"]
 	}
 }

@@ -6,10 +6,13 @@ import (
 )
 
 var (
+	// ValidField is the valid tag's name.
 	ValidField = "valid"
+	// LabelField is the label tag's name.
 	LabelField = "label"
 )
 
+// Field is one of the form's field.
 type Field struct {
 	name    string
 	label   string
@@ -24,6 +27,7 @@ type ruleContext struct {
 	value  interface{}
 }
 
+// New: return a govaild instance
 func New(inputStruct interface{}) *valid {
 	structType := reflect.TypeOf(inputStruct)
 	structValue := reflect.ValueOf(inputStruct)
