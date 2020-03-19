@@ -119,6 +119,11 @@ func minOrMaxLen(c ruleContext, flag string) *errContext {
 		return ctx
 	}
 	ctx.SetMessage(c.field.label + fmt.Sprintf(ctx.Tmpl, limit))
+
+	if c.value == "" {
+		return nil
+	}
+
 	value := fmt.Sprintf("%s", c.value)
 	if flag == "min" {
 		if int64(len(value)) < limit {

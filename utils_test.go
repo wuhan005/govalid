@@ -87,6 +87,15 @@ func Test_minlen(t *testing.T) {
 	s = struct {
 		Message string `valid:"minlen:5" label:"留言"`
 	}{
+		"",
+	}
+	v = New(s)
+	assert.Equal(t, v.Check(), true)
+	assert.Equal(t, len(v.Errors), 0)
+
+	s = struct {
+		Message string `valid:"minlen:5" label:"留言"`
+	}{
 		"Hello e99!",
 	}
 	v = New(s)
@@ -112,6 +121,15 @@ func Test_maxlen(t *testing.T) {
 	v = New(s1)
 	assert.Equal(t, v.Check(), false)
 	assert.Equal(t, v.Errors[0].Message, "留言检查规则入参错误")
+
+	s = struct {
+		Message string `valid:"maxlen:8" label:"留言"`
+	}{
+		"",
+	}
+	v = New(s)
+	assert.Equal(t, v.Check(), true)
+	assert.Equal(t, len(v.Errors), 0)
 
 	s = struct {
 		Message string `valid:"maxlen:8" label:"留言"`
