@@ -14,6 +14,8 @@ var ErrorTemplate = map[string]string{
 	"required":        "不能为空",
 	"min":             "应大于%v",
 	"max":             "应小于%v",
+	"minlen":          "长度应大于%v",
+	"maxlen":          "长度应小于%v",
 	"alpha":           "必须只包含字母",
 	"alphanumeric":    "只能含有字母或数字",
 	"alphadash":       "只含有数字或字母以及下划线",

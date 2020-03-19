@@ -96,6 +96,42 @@ func minOrMax(c ruleContext, flag string) *errContext {
 	return nil
 }
 
+func minlen(c ruleContext) *errContext {
+	return minOrMaxLen(c, "min")
+}
+
+func maxlen(c ruleContext) *errContext {
+	return minOrMaxLen(c, "max")
+}
+
+func minOrMaxLen(c ruleContext, flag string) *errContext {
+	ctx := NewErrorContext(c)
+	// check param
+	if len(c.params) != 1 {
+		ctx.Tmpl = GetErrorTemplate("_paramError")
+		ctx.SetMessage(c.field.label + ctx.Tmpl)
+		return ctx
+	}
+	limit, err := strconv.ParseInt(c.params[0], 10, 64)
+	if err != nil {
+		ctx.Tmpl = GetErrorTemplate("_paramError")
+		ctx.SetMessage(c.field.label + ctx.Tmpl)
+		return ctx
+	}
+	ctx.SetMessage(c.field.label + fmt.Sprintf(ctx.Tmpl, limit))
+	value := fmt.Sprintf("%s", c.value)
+	if flag == "min" {
+		if int64(len(value)) < limit {
+			return ctx
+		}
+	} else {
+		if int64(len(value)) > limit {
+			return ctx
+		}
+	}
+	return nil
+}
+
 func alpha(c ruleContext) *errContext {
 	ctx := NewErrorContext(c)
 	if reflect.ValueOf(c.value).Kind() != reflect.String {

@@ -16,6 +16,8 @@ func init() {
 		"required": require,
 		"min":      min,
 		"max":      max,
+		"minlen":	minlen,
+		"maxlen":	maxlen,
 		//"range":        Range,
 		"alpha":        alpha,
 		"alphanumeric": alphaNumeric,

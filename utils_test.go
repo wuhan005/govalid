@@ -65,6 +65,64 @@ func Test_max(t *testing.T) {
 	assert.Equal(t, len(v.Errors), 0)
 }
 
+func Test_minlen(t *testing.T) {
+	s := struct {
+		Message string `valid:"minlen:5" label:"留言"`
+	}{
+		"aaa",
+	}
+	v := New(s)
+	assert.Equal(t, v.Check(), false)
+	assert.Equal(t, v.Errors[0].Message, "留言长度应大于5")
+
+	s1 := struct {
+		Message string `valid:"minlen:5.2" label:"留言"`
+	}{
+		"aaa",
+	}
+	v = New(s1)
+	assert.Equal(t, v.Check(), false)
+	assert.Equal(t, v.Errors[0].Message, "留言检查规则入参错误")
+
+	s = struct {
+		Message string `valid:"minlen:5" label:"留言"`
+	}{
+		"Hello e99!",
+	}
+	v = New(s)
+	assert.Equal(t, v.Check(), true)
+	assert.Equal(t, len(v.Errors), 0)
+}
+
+func Test_maxlen(t *testing.T) {
+	s := struct {
+		Message string `valid:"maxlen:8" label:"留言"`
+	}{
+		"this_is_e99999",
+	}
+	v := New(s)
+	assert.Equal(t, v.Check(), false)
+	assert.Equal(t, v.Errors[0].Message, "留言长度应小于8")
+
+	s1 := struct {
+		Message string `valid:"maxlen:5.2" label:"留言"`
+	}{
+		"aaa",
+	}
+	v = New(s1)
+	assert.Equal(t, v.Check(), false)
+	assert.Equal(t, v.Errors[0].Message, "留言检查规则入参错误")
+
+	s = struct {
+		Message string `valid:"maxlen:8" label:"留言"`
+	}{
+		"e99",
+	}
+	v = New(s)
+	assert.Equal(t, v.Check(), true)
+	assert.Equal(t, len(v.Errors), 0)
+}
+
 func Test_alpha(t *testing.T) {
 	s := struct {
 		Name string `valid:"alpha" label:"昵称"`
