@@ -18,7 +18,7 @@ type Field struct {
 }
 
 type ruleContext struct {
-	name   string
+	field  *Field
 	rule   string
 	params []string
 	value  interface{}
@@ -38,12 +38,13 @@ func New(inputStruct interface{}) *valid {
 		fieldValue := structValue.Field(i).Interface()
 		validRules := structType.Field(i).Tag.Get(ValidField)
 
-		fields = append(fields, Field{
-			name:    fieldName,
-			label:   fieldLabel,
-			value:   fieldValue,
-			ruleCtx: parseRules(validRules, fieldValue),
-		})
+		field := Field{
+			name:  fieldName,
+			label: fieldLabel,
+			value: fieldValue,
+		}
+		field.ruleCtx = parseRules(validRules, &field)
+		fields = append(fields, field)
 	}
 
 	return &valid{
@@ -52,7 +53,7 @@ func New(inputStruct interface{}) *valid {
 	}
 }
 
-func parseRules(rules string, val interface{}) []ruleContext {
+func parseRules(rules string, field *Field) []ruleContext {
 	ctx := make([]ruleContext, 0)
 	segments := strings.Split(rules, ";")
 	for _, segment := range segments {
@@ -66,18 +67,18 @@ func parseRules(rules string, val interface{}) []ruleContext {
 				continue
 			}
 			ctx = append(ctx, ruleContext{
-				name:   segments[0],
+				field:  field,
 				rule:   kv[0],
 				params: strings.Split(kv[1], ","),
-				value:  val,
+				value:  field.value,
 			})
 		} else {
 			// value
 			ctx = append(ctx, ruleContext{
-				name:   segments[0],
+				field:  field,
 				rule:   segment,
 				params: nil,
-				value:  val,
+				value:  field.value,
 			})
 		}
 	}
