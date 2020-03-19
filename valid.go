@@ -19,12 +19,12 @@ func init() {
 		"alphanumeric": alphaNumeric,
 		"alphadash":    alphaDash,
 		"username":     userName,
-		//"email": Email,
-		//"ipv4":         IPv4,
-		//"mobile":       Mobile,
-		//"tel":          Tel,
-		//"phone":        Phone,
-		//"idcard":       IDCard,
+		"email":        email,
+		"ipv4":         ipv4,
+		"mobile":       mobile,
+		"tel":          tel,
+		"phone":        phone,
+		"idcard":       idCard,
 	}
 }
 
