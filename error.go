@@ -1,6 +1,7 @@
 package govalid
 
-type errContext struct {
+// ErrContext contains the error context.
+type ErrContext struct {
 	Field      string // form field name
 	Label      string
 	Tmpl       string // error message template
@@ -33,8 +34,8 @@ var errorTemplate = map[string]string{
 }
 
 // NewErrorContext return a error context.
-func NewErrorContext(c ruleContext) *errContext {
-	return &errContext{
+func NewErrorContext(c RuleContext) *ErrContext {
+	return &ErrContext{
 		Tmpl:       GetErrorTemplate(c.rule),
 		Message:    GetErrorTemplate(c.rule), // default message is the raw template
 		Value:      c.value,
@@ -43,7 +44,7 @@ func NewErrorContext(c ruleContext) *errContext {
 }
 
 // SetMessage set the error context's message.
-func (e *errContext) SetMessage(msg string) {
+func (e *ErrContext) SetMessage(msg string) {
 	e.Message = msg
 }
 

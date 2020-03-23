@@ -2,11 +2,11 @@ package govalid
 
 type valid struct {
 	Fields []Field
-	Errors []errContext
+	Errors []ErrContext
 }
 
 // CheckFunc is the type of checker function.
-type CheckFunc func(c ruleContext) *errContext
+type CheckFunc func(c RuleContext) *ErrContext
 
 // Checkers is the function of checkers.
 var Checkers map[string]CheckFunc
@@ -16,8 +16,8 @@ func init() {
 		"required": require,
 		"min":      min,
 		"max":      max,
-		"minlen":	minlen,
-		"maxlen":	maxlen,
+		"minlen":   minlen,
+		"maxlen":   maxlen,
 		//"range":        Range,
 		"alpha":        alpha,
 		"alphanumeric": alphaNumeric,
@@ -39,7 +39,7 @@ func (v *valid) Check() bool {
 			ruleFunc, exist := Checkers[r.rule]
 			if !exist {
 				// checker function not found
-				v.Errors = append(v.Errors, errContext{
+				v.Errors = append(v.Errors, ErrContext{
 					Field:      field.name,
 					Label:      field.label,
 					Tmpl:       GetErrorTemplate("_ruleNotFound"),

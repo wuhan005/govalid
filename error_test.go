@@ -6,7 +6,7 @@ import (
 )
 
 func TestErrContext_SetMessage(t *testing.T) {
-	ruleCtx := ruleContext{
+	ruleCtx := RuleContext{
 		field:  nil,
 		rule:   "testrule",
 		params: []string{"1", "a", "!"},

@@ -17,10 +17,11 @@ type Field struct {
 	name    string
 	label   string
 	value   interface{}
-	ruleCtx []ruleContext
+	ruleCtx []RuleContext
 }
 
-type ruleContext struct {
+// RuleContext is the rule context of a form field.
+type RuleContext struct {
 	field  *Field
 	rule   string
 	params []string
@@ -53,12 +54,12 @@ func New(inputStruct interface{}) *valid {
 
 	return &valid{
 		Fields: fields,
-		Errors: make([]errContext, 0),
+		Errors: make([]ErrContext, 0),
 	}
 }
 
-func parseRules(rules string, field *Field) []ruleContext {
-	ctx := make([]ruleContext, 0)
+func parseRules(rules string, field *Field) []RuleContext {
+	ctx := make([]RuleContext, 0)
 	segments := strings.Split(rules, ";")
 	for _, segment := range segments {
 		if segment == "" {
@@ -70,7 +71,7 @@ func parseRules(rules string, field *Field) []ruleContext {
 			if len(kv[0]) == 0 {
 				continue
 			}
-			ctx = append(ctx, ruleContext{
+			ctx = append(ctx, RuleContext{
 				field:  field,
 				rule:   kv[0],
 				params: strings.Split(kv[1], ","),
@@ -78,7 +79,7 @@ func parseRules(rules string, field *Field) []ruleContext {
 			})
 		} else {
 			// value
-			ctx = append(ctx, ruleContext{
+			ctx = append(ctx, RuleContext{
 				field:  field,
 				rule:   segment,
 				params: nil,

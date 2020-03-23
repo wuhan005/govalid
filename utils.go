@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func require(c ruleContext) *errContext {
+func require(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 
 	if c.value == nil {
@@ -26,15 +26,15 @@ func require(c ruleContext) *errContext {
 	return nil
 }
 
-func min(c ruleContext) *errContext {
+func min(c RuleContext) *ErrContext {
 	return minOrMax(c, "min")
 }
 
-func max(c ruleContext) *errContext {
+func max(c RuleContext) *ErrContext {
 	return minOrMax(c, "max")
 }
 
-func minOrMax(c ruleContext, flag string) *errContext {
+func minOrMax(c RuleContext, flag string) *ErrContext {
 	ctx := NewErrorContext(c)
 	if len(c.params) != 1 {
 		ctx.Tmpl = GetErrorTemplate("_paramError")
@@ -96,15 +96,15 @@ func minOrMax(c ruleContext, flag string) *errContext {
 	return nil
 }
 
-func minlen(c ruleContext) *errContext {
+func minlen(c RuleContext) *ErrContext {
 	return minOrMaxLen(c, "min")
 }
 
-func maxlen(c ruleContext) *errContext {
+func maxlen(c RuleContext) *ErrContext {
 	return minOrMaxLen(c, "max")
 }
 
-func minOrMaxLen(c ruleContext, flag string) *errContext {
+func minOrMaxLen(c RuleContext, flag string) *ErrContext {
 	ctx := NewErrorContext(c)
 	// check param
 	if len(c.params) != 1 {
@@ -137,7 +137,7 @@ func minOrMaxLen(c ruleContext, flag string) *errContext {
 	return nil
 }
 
-func alpha(c ruleContext) *errContext {
+func alpha(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.ValueOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -153,7 +153,7 @@ func alpha(c ruleContext) *errContext {
 	return nil
 }
 
-func alphaNumeric(c ruleContext) *errContext {
+func alphaNumeric(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -169,7 +169,7 @@ func alphaNumeric(c ruleContext) *errContext {
 	return nil
 }
 
-func alphaDash(c ruleContext) *errContext {
+func alphaDash(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -188,7 +188,7 @@ func alphaDash(c ruleContext) *errContext {
 	return nil
 }
 
-func userName(c ruleContext) *errContext {
+func userName(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -228,7 +228,7 @@ func userName(c ruleContext) *errContext {
 	return nil
 }
 
-func email(c ruleContext) *errContext {
+func email(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -247,7 +247,7 @@ func email(c ruleContext) *errContext {
 	return nil
 }
 
-func ipv4(c ruleContext) *errContext {
+func ipv4(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -269,7 +269,7 @@ func ipv4(c ruleContext) *errContext {
 // MobilePattern is used to check the mobile phone.
 var MobilePattern = regexp.MustCompile(`^((\+86)|(86))?(1(([35][0-9])|[8][0-9]|[7][056789]|[4][579]|99))\d{8}$`)
 
-func mobile(c ruleContext) *errContext {
+func mobile(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -287,7 +287,7 @@ func mobile(c ruleContext) *errContext {
 	return nil
 }
 
-func tel(c ruleContext) *errContext {
+func tel(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
@@ -305,7 +305,7 @@ func tel(c ruleContext) *errContext {
 	return nil
 }
 
-func phone(c ruleContext) *errContext {
+func phone(c RuleContext) *ErrContext {
 	telErr := tel(c)
 	mobileErr := mobile(c)
 
@@ -318,7 +318,7 @@ func phone(c ruleContext) *errContext {
 	return nil
 }
 
-func idCard(c ruleContext) *errContext {
+func idCard(c RuleContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	if reflect.TypeOf(c.value).Kind() != reflect.String {
 		ctx.Tmpl = GetErrorTemplate("_valueTypeError")
