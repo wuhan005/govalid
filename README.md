@@ -1,11 +1,14 @@
 # govalid
-[![Build Status](https://travis-ci.com/wuhan005/govalid.svg?branch=master)](https://travis-ci.com/wuhan005/govalid)
+
+A simple Go struct validator.
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/wuhan005/govalid)](https://goreportcard.com/report/github.com/wuhan005/govalid)
 
 ## Quick Start
+
 `go get -u github.com/wuhan005/govalid`
 
-```go
+```
 r := struct {
     Name string `valid:"required;username" label:"昵称"`
     ID   int    `valid:"required;min:0;max:999" label:"用户编号"`
@@ -21,7 +24,9 @@ if !v.Check() {
     }
 }
 ```
+
 Output:
+
 ```
 昵称的最后一个字符不能为下划线
 用户编号应小于999
@@ -29,7 +34,8 @@ Output:
 ```
 
 ## Customize Error Message
-```go
+
+```
 govalid.SetDefaultMessage(map[string]string{
     "required": "can't be null.",
     "min": "must bigger than %v.",
@@ -37,6 +43,7 @@ govalid.SetDefaultMessage(map[string]string{
 ```
 
 ### Default Error Messages
+
 ```
 "required":        "不能为空",
 "min":             "应大于%v",
@@ -59,8 +66,10 @@ govalid.SetDefaultMessage(map[string]string{
 "_paramError":     "检查规则入参错误",
 "_valueTypeError": "参数类型不正确",
 ```
+
 ## Customize Error Check Function
-```go
+
+```
 func main() {
 	// set your error message.
 	govalid.SetDefaultMessage(map[string]string{
@@ -96,8 +105,11 @@ func main() {
 	}
 }
 ```
+
 ## Special Thanks
+
 https://github.com/jiazhoulvke/echo-form
 
 ## LICENSE
+
 MIT
