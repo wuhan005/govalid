@@ -591,4 +591,5 @@ func Test_Equal(t *testing.T) {
 	}
 	errs, ok = Check(v)
 	assert.True(t, ok)
+	assert.Nil(t, errs)
 }
