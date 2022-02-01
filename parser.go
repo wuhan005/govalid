@@ -29,6 +29,11 @@ func parseStruct(v interface{}) []*structField {
 	structType := reflect.TypeOf(v)
 	structValue := reflect.ValueOf(v)
 
+	if structType.Kind() == reflect.Ptr {
+		structType = structType.Elem()
+		structValue = structValue.Elem()
+	}
+
 	fields := make([]*structField, 0)
 	rulesSets := make(map[string][]*rule)
 
