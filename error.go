@@ -44,11 +44,13 @@ var errorTemplate = map[string]string{
 	"tel":            "不是合法的座机号码",
 	"phone":          "不是合法的号码",
 	"idcard":         "不是合法的身份证号",
+	"equal":          "的值前后不相同",
 
 	"_checkerNotFound":      "检查规则未找到}}",
 	"_unknownErrorTemplate": "{{未知错误}}",
 	"_paramError":           "检查规则入参错误}}",
 	"_valueTypeError":       "参数类型不正确}}",
+	"_fieldNotFound":        "{{字段不存在}}",
 }
 
 // NewErrorContext return a error context.
@@ -146,6 +148,20 @@ func MakeCheckerParamError(c CheckerContext) *ErrContext {
 
 func MakeValueTypeError(c CheckerContext) *ErrContext {
 	template := strings.TrimPrefix(getErrorTemplate("_valueTypeError"), "~")
+
+	errCtx := &ErrContext{
+		FieldName:       c.FieldName,
+		FieldLabel:      c.FieldLabel,
+		FieldValue:      c.FieldValue,
+		fieldLimitValue: c.Rule.params,
+		errorTemplate:   template,
+	}
+	errCtx.makeMessage()
+	return errCtx
+}
+
+func MakeFieldNotFoundError(c CheckerContext) *ErrContext {
+	template := strings.TrimPrefix(getErrorTemplate("_fieldNotFound"), "~")
 
 	errCtx := &ErrContext{
 		FieldName:       c.FieldName,

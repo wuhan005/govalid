@@ -568,3 +568,27 @@ func Test_idCard(t *testing.T) {
 	assert.True(t, ok)
 	assert.Zero(t, len(errs))
 }
+
+func Test_Equal(t *testing.T) {
+	v := struct {
+		Password       string `valid:"required" label:"密码"`
+		RepeatPassword string `valid:"equal:Password" label:"重复密码"`
+	}{
+		Password:       "123456",
+		RepeatPassword: "1234567",
+	}
+	errs, ok := Check(v)
+	assert.False(t, ok)
+	assert.Equal(t, 1, len(errs))
+	assert.Equal(t, "重复密码的值前后不相同", errs[0].Error())
+
+	v = struct {
+		Password       string `valid:"required" label:"密码"`
+		RepeatPassword string `valid:"equal:Password" label:"重复密码"`
+	}{
+		Password:       "123456",
+		RepeatPassword: "123456",
+	}
+	errs, ok = Check(v)
+	assert.True(t, ok)
+}

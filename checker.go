@@ -15,10 +15,11 @@ type CheckFunc func(ctx CheckerContext) *ErrContext
 // CheckerContext is the context of checker,
 // which can contains the rule of the checker and the value of the current struct field.
 type CheckerContext struct {
-	FieldName  string
-	FieldType  reflect.Type
-	FieldValue interface{}
-	FieldLabel string
+	StructValue reflect.Value
+	FieldName   string
+	FieldType   reflect.Type
+	FieldValue  interface{}
+	FieldLabel  string
 
 	Rule *rule
 }
@@ -40,6 +41,7 @@ var Checkers = map[string]CheckFunc{
 	"tel":          tel,
 	"phone":        phone,
 	"idcard":       idCard,
+	"equal":        equal,
 }
 
 func required(c CheckerContext) *ErrContext {
@@ -332,4 +334,21 @@ func idCard(c CheckerContext) *ErrContext {
 		return ctx
 	}
 	return nil
+}
+
+func equal(c CheckerContext) *ErrContext {
+	ctx := NewErrorContext(c)
+	value := fmt.Sprintf("%v", ctx.FieldValue)
+	equalField := c.Rule.params[0]
+
+	for i := 0; i < c.StructValue.Type().NumField(); i++ {
+		if c.StructValue.Type().Field(i).Name == equalField {
+			equalFieldValue := fmt.Sprintf("%v", c.StructValue.Field(i).Interface())
+			if value != equalFieldValue {
+				return ctx
+			}
+			return nil
+		}
+	}
+	return MakeFieldNotFoundError(c)
 }

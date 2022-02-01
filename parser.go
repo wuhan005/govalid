@@ -25,15 +25,7 @@ type structField struct {
 }
 
 // parseStruct parses the given struct field.
-func parseStruct(v interface{}) []*structField {
-	structType := reflect.TypeOf(v)
-	structValue := reflect.ValueOf(v)
-
-	if structType.Kind() == reflect.Ptr {
-		structType = structType.Elem()
-		structValue = structValue.Elem()
-	}
-
+func parseStruct(structType reflect.Type, structValue reflect.Value) []*structField {
 	fields := make([]*structField, 0)
 	rulesSets := make(map[string][]*rule)
 
