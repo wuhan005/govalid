@@ -529,6 +529,15 @@ func Test_phone(t *testing.T) {
 	v = struct {
 		Phone string `valid:"phone" label:"电话号码"`
 	}{
+		"14988888888",
+	}
+	errs, ok = Check(v)
+	assert.True(t, ok)
+	assert.Zero(t, len(errs))
+
+	v = struct {
+		Phone string `valid:"phone" label:"电话号码"`
+	}{
 		"47474747",
 	}
 	errs, ok = Check(v)

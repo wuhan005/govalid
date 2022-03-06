@@ -300,7 +300,8 @@ func ipv4(c CheckerContext) *ErrContext {
 }
 
 // MobilePattern is used to check the mobile phone.
-var MobilePattern = regexp.MustCompile(`^((\+86)|(86))?(1(([35][0-9])|[8][0-9]|[7][056789]|[4][579]|99))\d{8}$`)
+// Refer to https://github.com/VincentSit/ChinaMobilePhoneNumberRegex
+var MobilePattern = regexp.MustCompile(`^(?:\+?86)?1(?:3\d{3}|5[^4\D]\d{2}|8\d{3}|7(?:[0-35-9]\d{2}|4(?:0\d|1[0-2]|9\d))|9[0-35-9]\d{2}|6[2567]\d{2}|4(?:(?:10|4[01])\d{3}|[68]\d{4}|[579]\d{2}))\d{6}$`)
 
 func mobile(c CheckerContext) *ErrContext {
 	ctx := NewErrorContext(c)
