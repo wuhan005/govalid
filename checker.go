@@ -51,6 +51,14 @@ func required(c CheckerContext) *ErrContext {
 		return errCtx
 	}
 
+	// If field is a slice, then check if it is empty.
+	if c.FieldType.Kind() == reflect.Slice {
+		if reflect.ValueOf(c.FieldValue).Len() == 0 {
+			return errCtx
+		}
+		return nil
+	}
+
 	zeroValue := reflect.Zero(c.FieldType)
 	if zeroValue.Interface() == c.FieldValue {
 		return errCtx
@@ -75,7 +83,7 @@ func minOrMax(c CheckerContext, flag string) *ErrContext {
 	limitStr := c.Rule.params[0]
 
 	switch reflect.TypeOf(c.FieldValue).Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		limit, err := strconv.ParseInt(limitStr, 10, 64)
 		if err != nil {
 			return MakeCheckerParamError(c)
@@ -83,6 +91,25 @@ func minOrMax(c CheckerContext, flag string) *ErrContext {
 		ctx.SetFieldLimitValue(limit)
 
 		value := reflect.ValueOf(c.FieldValue).Int()
+		if flag == "min" {
+			if value < limit {
+				return ctx
+			}
+		} else {
+			if value > limit {
+				return ctx
+			}
+		}
+		return nil
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		limit, err := strconv.ParseUint(limitStr, 10, 64)
+		if err != nil {
+			return MakeCheckerParamError(c)
+		}
+		ctx.SetFieldLimitValue(limit)
+
+		value := reflect.ValueOf(c.FieldValue).Uint()
 		if flag == "min" {
 			if value < limit {
 				return ctx

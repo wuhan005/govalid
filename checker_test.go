@@ -25,6 +25,23 @@ func Test_required(t *testing.T) {
 	errs, ok = Check(v)
 	assert.True(t, ok)
 	assert.Zero(t, errs)
+
+	list := struct {
+		Names []string `valid:"required" label:"用户名列表"`
+	}{}
+	errs, ok = Check(list)
+	assert.False(t, ok)
+	assert.Equal(t, 1, len(errs))
+	assert.Equal(t, "用户名列表不能为空", errs[0].Error())
+
+	list = struct {
+		Names []string `valid:"required" label:"用户名列表"`
+	}{
+		[]string{"E99p1ant"},
+	}
+	errs, ok = Check(list)
+	assert.True(t, ok)
+	assert.Zero(t, errs)
 }
 
 func Test_min(t *testing.T) {
@@ -592,4 +609,30 @@ func Test_Equal(t *testing.T) {
 	errs, ok = Check(v)
 	assert.True(t, ok)
 	assert.Nil(t, errs)
+}
+
+func Test_StructSlice(t *testing.T) {
+	type user struct {
+		Name string `valid:"required" label:"用户名"`
+		Age  uint   `valid:"required;min:0;max:100" label:"年龄"`
+	}
+	type users struct {
+		Users []user `valid:"required" label:"用户列表"`
+	}
+
+	emptyUsers := users{}
+	errs, ok := Check(emptyUsers)
+	assert.False(t, ok)
+	assert.Equal(t, 1, len(errs))
+	assert.Equal(t, "用户列表不能为空", errs[0].Error())
+
+	agoOverflow := users{
+		Users: []user{
+			{"E99p1ant", 22222},
+		},
+	}
+	errs, ok = Check(agoOverflow)
+	assert.False(t, ok)
+	assert.Equal(t, 1, len(errs))
+	assert.Equal(t, "年龄应小于100", errs[0].Error())
 }

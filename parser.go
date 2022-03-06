@@ -32,14 +32,18 @@ func parseStruct(structType reflect.Type, structValue reflect.Value) []*structFi
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
 
+		// Check if the field is a struct slice.
+		if field.Type.Kind() == reflect.Slice && field.Type.Elem().Kind() == reflect.Struct {
+			for j := 0; j < structValue.Field(i).Len(); j++ {
+				fields = append(fields, parseStruct(field.Type.Elem(), structValue.Field(i).Index(j))...)
+			}
+		}
+
 		// Check if this field has a validator tag.
 		rawRules, ok := field.Tag.Lookup(RulesField)
 		if !ok {
 			continue
 		}
-		// Parse validation rules.
-		// We store every field's rules in a map, so we can only parse the same rules once.
-		rulesSets[rawRules] = parseRules(rawRules)
 
 		name := field.Name
 		// Check if this field has a customized label name.
@@ -50,18 +54,24 @@ func parseStruct(structType reflect.Type, structValue reflect.Value) []*structFi
 		typ := structValue.Field(i).Type()
 		value := structValue.Field(i).Interface()
 
+		// Parse validation rules.
+		// We store every field's rules in a map, so we can only parse the same rules once.
+		var rules []*rule
+		if rulesSet, ok := rulesSets[rawRules]; ok {
+			rules = rulesSet
+		} else {
+			rules = parseRules(rawRules)
+			rulesSets[rawRules] = rules
+		}
+
 		fields = append(fields, &structField{
 			name:     name,
 			typ:      typ,
 			value:    value,
 			label:    label,
 			rawRules: rawRules,
+			rules:    rules,
 		})
-	}
-
-	// Set rules for each field.
-	for _, field := range fields {
-		field.rules = rulesSets[field.rawRules]
 	}
 
 	return fields
