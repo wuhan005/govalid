@@ -42,6 +42,16 @@ func Test_required(t *testing.T) {
 	errs, ok = Check(list)
 	assert.True(t, ok)
 	assert.Zero(t, errs)
+
+	// Struct slice
+	array := []struct {
+		Name string `valid:"required" label:"用户名"`
+	}{
+		{Name: "E99p1ant"},
+	}
+	errs, ok = Check(array)
+	assert.True(t, ok)
+	assert.Zero(t, errs)
 }
 
 func Test_min(t *testing.T) {

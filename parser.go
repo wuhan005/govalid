@@ -29,6 +29,15 @@ func parseStruct(structType reflect.Type, structValue reflect.Value) []*structFi
 	fields := make([]*structField, 0)
 	rulesSets := make(map[string][]*rule)
 
+	// Check if is a struct slice, and parse each struct.
+	if structType.Kind() == reflect.Slice {
+		for i := 0; i < structValue.Len(); i++ {
+			structFields := parseStruct(structType.Elem(), structValue.Index(i))
+			fields = append(fields, structFields...)
+		}
+		return fields
+	}
+
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
 
