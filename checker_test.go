@@ -134,6 +134,25 @@ func Test_minlen(t *testing.T) {
 	errs, ok = Check(v4)
 	assert.True(t, ok)
 	assert.Zero(t, len(errs))
+
+	v5 := struct {
+		Message string `valid:"minlen:5" label:"留言"`
+	}{
+		"中文测试",
+	}
+	errs, ok = Check(v5)
+	assert.False(t, ok)
+	assert.Equal(t, 1, len(errs))
+	assert.Equal(t, "留言长度应大于5", errs[0].Error())
+
+	v6 := struct {
+		Message string `valid:"minlen:5" label:"留言"`
+	}{
+		"这个是中文的测试",
+	}
+	errs, ok = Check(v6)
+	assert.True(t, ok)
+	assert.Zero(t, len(errs))
 }
 
 func Test_maxlen(t *testing.T) {
@@ -174,6 +193,25 @@ func Test_maxlen(t *testing.T) {
 	errs, ok = Check(v3)
 	assert.True(t, ok)
 	assert.Zero(t, len(errs))
+
+	v4 := struct {
+		Message string `valid:"maxlen:8" label:"留言"`
+	}{
+		"这里输入中文测试",
+	}
+	errs, ok = Check(v4)
+	assert.True(t, ok)
+	assert.Zero(t, len(errs))
+
+	v5 := struct {
+		Message string `valid:"maxlen:8" label:"留言"`
+	}{
+		"这里输入中文的测试",
+	}
+	errs, ok = Check(v5)
+	assert.False(t, ok)
+	assert.Equal(t, 1, len(errs))
+	assert.Equal(t, "留言长度应小于8", errs[0].Error())
 }
 
 func Test_alpha(t *testing.T) {

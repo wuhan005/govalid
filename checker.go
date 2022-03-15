@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 // CheckFunc is the type of checker function.
@@ -176,12 +177,13 @@ func minOrMaxLen(c CheckerContext, flag string) *ErrContext {
 	}
 
 	value := fmt.Sprintf("%s", c.FieldValue)
+	length := utf8.RuneCountInString(value)
 	if flag == "min" {
-		if int64(len(value)) < limit {
+		if int64(length) < limit {
 			return ctx
 		}
 	} else {
-		if int64(len(value)) > limit {
+		if int64(length) > limit {
 			return ctx
 		}
 	}
