@@ -118,6 +118,13 @@ func SetMessageTemplates(messages map[string]string) {
 	}
 }
 
+func MakeUserDefinedError(msg string) *ErrContext {
+	errCtx := &ErrContext{
+		errorMessage: msg,
+	}
+	return errCtx
+}
+
 func MakeCheckerNotFoundError(c CheckerContext) *ErrContext {
 	template := strings.TrimPrefix(getErrorTemplate("_checkerNotFound"), "~")
 

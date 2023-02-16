@@ -17,6 +17,8 @@ func Check(v interface{}) (errs []*ErrContext, ok bool) {
 	structFields := parseStruct(structType, structValue)
 
 	for _, field := range structFields {
+		fieldErrorMessage := field.errorMessage
+
 		for _, r := range field.rules {
 			rule := r
 			checkerName := rule.checker
@@ -37,6 +39,12 @@ func Check(v interface{}) (errs []*ErrContext, ok bool) {
 			}
 
 			if err := checker(checkerContext); err != nil {
+				// If the field's error message is not empty, use it.
+				if fieldErrorMessage != "" {
+					errs = append(errs, MakeUserDefinedError(fieldErrorMessage))
+					break
+				}
+
 				errs = append(errs, err)
 			}
 		}

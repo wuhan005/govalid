@@ -10,6 +10,8 @@ var (
 	RulesField = "valid"
 	// LabelField is the field label tag's name.
 	LabelField = "label"
+	// MessageField is the error message tag's name.
+	MessageField = "msg"
 )
 
 // structField is one of the struct field.
@@ -18,7 +20,8 @@ type structField struct {
 	typ   reflect.Type
 	value interface{}
 
-	label string
+	label        string
+	errorMessage string
 
 	rawRules string
 	rules    []*rule
@@ -57,8 +60,12 @@ func parseStruct(structType reflect.Type, structValue reflect.Value) []*structFi
 		name := field.Name
 		// Check if this field has a customized label name.
 		label := name
-		if labelValue, exist := structType.Field(i).Tag.Lookup(LabelField); exist {
+		if labelValue, ok := structType.Field(i).Tag.Lookup(LabelField); ok {
 			label = labelValue
+		}
+		var errorMessage string
+		if messageValue, ok := structType.Field(i).Tag.Lookup(MessageField); ok {
+			errorMessage = messageValue
 		}
 		typ := structValue.Field(i).Type()
 		value := structValue.Field(i).Interface()
@@ -74,12 +81,13 @@ func parseStruct(structType reflect.Type, structValue reflect.Value) []*structFi
 		}
 
 		fields = append(fields, &structField{
-			name:     name,
-			typ:      typ,
-			value:    value,
-			label:    label,
-			rawRules: rawRules,
-			rules:    rules,
+			name:         name,
+			typ:          typ,
+			value:        value,
+			label:        label,
+			errorMessage: errorMessage,
+			rawRules:     rawRules,
+			rules:        rules,
 		})
 	}
 

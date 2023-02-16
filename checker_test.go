@@ -693,3 +693,26 @@ func Test_StructSlice(t *testing.T) {
 	assert.Equal(t, 1, len(errs))
 	assert.Equal(t, "年龄应小于100", errs[0].Error())
 }
+
+func Test_UserDefinedError(t *testing.T) {
+	type user struct {
+		Name string `valid:"required" label:"用户名" msg:"用户名不能为空哟~"`
+		Age  uint   `valid:"required;min:0;max:100" label:"年龄" msg:"是错误的年龄呢~"`
+	}
+
+	t.Run("empty name", func(t *testing.T) {
+		u := &user{Name: "", Age: 23}
+		errs, ok := Check(u)
+		assert.False(t, ok)
+		assert.Equal(t, 1, len(errs))
+		assert.Equal(t, "用户名不能为空哟~", errs[0].Error())
+	})
+
+	t.Run("invalid age", func(t *testing.T) {
+		u := &user{Name: "E99p1ant", Age: 22222}
+		errs, ok := Check(u)
+		assert.False(t, ok)
+		assert.Equal(t, 1, len(errs))
+		assert.Equal(t, "是错误的年龄呢~", errs[0].Error())
+	})
+}
