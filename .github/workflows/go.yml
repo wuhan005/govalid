@@ -21,11 +21,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v2.4.0
+      - name: Install Go
+        uses: actions/setup-go@v2
         with:
-          version: v1.37.0
-          args: --timeout=30m
+          go-version: 1.19.x
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.49.0
+          args: --timeout=10m
 
   test:
     name: Test
@@ -34,9 +38,16 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16.x
+          go-version: 1.19.x
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run tests
-        run: go test -v -race ./...
+        run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.txt
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
 
