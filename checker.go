@@ -245,13 +245,13 @@ func userName(c CheckerContext) *ErrContext {
 		return nil
 	}
 
-	// is alpha dash
+	// is alpha dash.
 	if ctx := alphaDash(c); ctx != nil {
 		ctx.SetTemplate("firstCharAlpha")
 		return ctx
 	}
 
-	// first char must be a alpha
+	// first char must be a alpha.
 	tmp := c
 	tmp.FieldValue = fmt.Sprintf("%c", c.FieldValue.(string)[0])
 	if ctx := alpha(tmp); ctx != nil {
@@ -259,7 +259,7 @@ func userName(c CheckerContext) *ErrContext {
 		return ctx
 	}
 
-	// last char can't be dash
+	// last char can't be dash.
 	if strings.HasSuffix(c.FieldValue.(string), "_") {
 		ctx.SetTemplate("lastUnderline")
 		return ctx
