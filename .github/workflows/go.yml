@@ -48,6 +48,5 @@ jobs:
         with:
           files: ./coverage.txt
           flags: unittests
-          name: codecov-umbrella
           fail_ci_if_error: true
 
