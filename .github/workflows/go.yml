@@ -42,11 +42,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run tests
-        run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.txt
-          flags: unittests
-          fail_ci_if_error: true
+        run: go test -v ./...
 
