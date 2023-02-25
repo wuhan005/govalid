@@ -2,6 +2,7 @@ package govalid
 
 import (
 	"fmt"
+	"golang.org/x/text/language"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -16,11 +17,12 @@ type CheckFunc func(ctx CheckerContext) *ErrContext
 // CheckerContext is the context of checker,
 // which can contains the rule of the checker and the value of the current struct field.
 type CheckerContext struct {
-	StructValue reflect.Value
-	FieldName   string
-	FieldType   reflect.Type
-	FieldValue  interface{}
-	FieldLabel  string
+	StructValue      reflect.Value
+	FieldName        string
+	FieldType        reflect.Type
+	FieldValue       interface{}
+	FieldLabel       string
+	TemplateLanguage language.Tag
 
 	Rule *rule
 }

@@ -1,6 +1,7 @@
 package govalid
 
 import (
+	"golang.org/x/text/language"
 	"reflect"
 	"strings"
 )
@@ -28,14 +29,14 @@ type structField struct {
 }
 
 // parseStruct parses the given struct field.
-func parseStruct(structType reflect.Type, structValue reflect.Value) []*structField {
+func parseStruct(structType reflect.Type, structValue reflect.Value, languageTag language.Tag) []*structField {
 	fields := make([]*structField, 0)
 	rulesSets := make(map[string][]*rule)
 
 	// Check if is a struct slice, and parse each struct.
 	if structType.Kind() == reflect.Slice {
 		for i := 0; i < structValue.Len(); i++ {
-			structFields := parseStruct(structType.Elem(), structValue.Index(i))
+			structFields := parseStruct(structType.Elem(), structValue.Index(i), languageTag)
 			fields = append(fields, structFields...)
 		}
 		return fields
@@ -47,7 +48,7 @@ func parseStruct(structType reflect.Type, structValue reflect.Value) []*structFi
 		// Check if the field is a struct slice.
 		if field.Type.Kind() == reflect.Slice && field.Type.Elem().Kind() == reflect.Struct {
 			for j := 0; j < structValue.Field(i).Len(); j++ {
-				fields = append(fields, parseStruct(field.Type.Elem(), structValue.Field(i).Index(j))...)
+				fields = append(fields, parseStruct(field.Type.Elem(), structValue.Field(i).Index(j), languageTag)...)
 			}
 		}
 
@@ -60,9 +61,21 @@ func parseStruct(structType reflect.Type, structValue reflect.Value) []*structFi
 		name := field.Name
 		// Check if this field has a customized label name.
 		label := name
-		if labelValue, ok := structType.Field(i).Tag.Lookup(LabelField); ok {
-			label = labelValue
+		labelField := LabelField
+		// We accept user specified language tag.
+		// e.g. `label:"Name" label-en:"Name" label-zh:"姓名"`
+		if languageTag.String() != "" {
+			labelField += "-" + languageTag.String()
 		}
+
+		if labelValue, ok := structType.Field(i).Tag.Lookup(labelField); ok {
+			label = labelValue
+		} else {
+			if labelValue, ok = structType.Field(i).Tag.Lookup(LabelField); ok {
+				label = labelValue
+			}
+		}
+
 		var errorMessage string
 		if messageValue, ok := structType.Field(i).Tag.Lookup(MessageField); ok {
 			errorMessage = messageValue

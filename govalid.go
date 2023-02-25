@@ -1,11 +1,12 @@
 package govalid
 
 import (
+	"golang.org/x/text/language"
 	"reflect"
 )
 
 // Check checks the struct value.
-func Check(v interface{}) (errs []*ErrContext, ok bool) {
+func Check(v interface{}, lang ...language.Tag) (errs []*ErrContext, ok bool) {
 	structType := reflect.TypeOf(v)
 	structValue := reflect.ValueOf(v)
 
@@ -14,7 +15,12 @@ func Check(v interface{}) (errs []*ErrContext, ok bool) {
 		structValue = structValue.Elem()
 	}
 
-	structFields := parseStruct(structType, structValue)
+	templateLanguage := defaultTemplateLanguage
+	if len(lang) > 0 {
+		templateLanguage = lang[0]
+	}
+
+	structFields := parseStruct(structType, structValue, templateLanguage)
 
 	for _, field := range structFields {
 		fieldErrorMessage := field.errorMessage
@@ -23,12 +29,13 @@ func Check(v interface{}) (errs []*ErrContext, ok bool) {
 			rule := r
 			checkerName := rule.checker
 			checkerContext := CheckerContext{
-				StructValue: structValue,
-				FieldName:   field.name,
-				FieldType:   field.typ,
-				FieldLabel:  field.label,
-				FieldValue:  field.value,
-				Rule:        rule,
+				StructValue:      structValue,
+				FieldName:        field.name,
+				FieldType:        field.typ,
+				FieldLabel:       field.label,
+				FieldValue:       field.value,
+				TemplateLanguage: templateLanguage,
+				Rule:             rule,
 			}
 
 			checker, ok := Checkers[checkerName]
