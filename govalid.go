@@ -15,12 +15,12 @@ func Check(v interface{}, lang ...language.Tag) (errs []*ErrContext, ok bool) {
 		structValue = structValue.Elem()
 	}
 
-	structFields := parseStruct(structType, structValue)
-
 	templateLanguage := defaultTemplateLanguage
 	if len(lang) > 0 {
 		templateLanguage = lang[0]
 	}
+
+	structFields := parseStruct(structType, structValue, templateLanguage)
 
 	for _, field := range structFields {
 		fieldErrorMessage := field.errorMessage
