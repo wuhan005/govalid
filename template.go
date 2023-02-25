@@ -1,0 +1,53 @@
+package govalid
+
+var errorTemplateChinese = map[string]string{
+	"required":       "不能为空",
+	"min":            "应大于",
+	"max":            "应小于",
+	"minlen":         "长度应大于",
+	"maxlen":         "长度应小于",
+	"alpha":          "必须只包含字母",
+	"alphanumeric":   "只能含有字母或数字",
+	"alphadash":      "只含有数字或字母以及下划线",
+	"firstCharAlpha": "的第一个字符必须为字母",
+	"lastUnderline":  "的最后一个字符不能为下划线",
+	"email":          "不是合法的电子邮箱格式",
+	"ipv4":           "不是合法的 IPv4 地址格式",
+	"mobile":         "不是合法的手机号",
+	"tel":            "不是合法的座机号码",
+	"phone":          "不是合法的号码",
+	"idcard":         "不是合法的身份证号",
+	"equal":          "的值前后不相同",
+
+	"_checkerNotFound":      "检查规则未找到}}",
+	"_unknownErrorTemplate": "{{未知错误}}",
+	"_paramError":           "检查规则入参错误}}",
+	"_valueTypeError":       "参数类型不正确}}",
+	"_fieldNotFound":        "{{字段不存在}}",
+}
+
+var errorTemplateEnglish = map[string]string{
+	"required":       "can not be empty",
+	"min":            "should be greater than",
+	"max":            "should be less than",
+	"minlen":         "length should be greater than",
+	"maxlen":         "length should be less than",
+	"alpha":          "must contain only letters",
+	"alphanumeric":   "must contain only letters or numbers",
+	"alphadash":      "must contain only letters, numbers, or underscores",
+	"firstCharAlpha": "the first character must be a letter",
+	"lastUnderline":  "the last character cannot be an underscore",
+	"email":          "is not a valid email address",
+	"ipv4":           "is not a valid IPv4 address",
+	"mobile":         "is not a valid mobile phone number",
+	"tel":            "is not a valid telephone number",
+	"phone":          "is not a valid phone number",
+	"idcard":         "is not a valid ID card number",
+	"equal":          "the value before and after is not the same",
+
+	"_checkerNotFound":      "check rule not found}}",
+	"_unknownErrorTemplate": "{{unknown error}}",
+	"_paramError":           "check rule parameter error}}",
+	"_valueTypeError":       "parameter type error}}",
+	"_fieldNotFound":        "{{field not found}}",
+}
