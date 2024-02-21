@@ -668,6 +668,27 @@ func Test_Equal(t *testing.T) {
 	assert.Nil(t, errs)
 }
 
+func Test_List(t *testing.T) {
+	v := struct {
+		Role string `valid:"list:admin,editor,viewer" label:"角色"`
+	}{
+		Role: "superadmin",
+	}
+	errs, ok := Check(v)
+	assert.False(t, ok)
+	assert.Equal(t, 1, len(errs))
+	assert.Equal(t, "角色不是一个有效的值", errs[0].Error())
+
+	v = struct {
+		Role string `valid:"list:admin,editor,viewer" label:"角色"`
+	}{
+		Role: "admin",
+	}
+	errs, ok = Check(v)
+	assert.True(t, ok)
+	assert.Nil(t, errs)
+}
+
 func Test_StructSlice(t *testing.T) {
 	type user struct {
 		Name string `valid:"required" label:"用户名"`

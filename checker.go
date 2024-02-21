@@ -2,12 +2,13 @@ package govalid
 
 import (
 	"fmt"
-	"golang.org/x/text/language"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"golang.org/x/text/language"
 )
 
 // CheckFunc is the type of checker function.
@@ -45,6 +46,7 @@ var Checkers = map[string]CheckFunc{
 	"phone":        phone,
 	"idcard":       idCard,
 	"equal":        equal,
+	"list":         list,
 }
 
 func required(c CheckerContext) *ErrContext {
@@ -383,4 +385,16 @@ func equal(c CheckerContext) *ErrContext {
 		}
 	}
 	return MakeFieldNotFoundError(c)
+}
+
+func list(c CheckerContext) *ErrContext {
+	ctx := NewErrorContext(c)
+	value := fmt.Sprintf("%v", ctx.FieldValue)
+	allowValues := strings.Split(c.Rule.params[0], ",")
+	for _, v := range allowValues {
+		if value == v {
+			return nil
+		}
+	}
+	return ctx
 }

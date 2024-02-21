@@ -18,6 +18,7 @@ var errorTemplateChinese = map[string]string{
 	"phone":          "不是合法的号码",
 	"idcard":         "不是合法的身份证号",
 	"equal":          "的值前后不相同",
+	"list":           "不是一个有效的值",
 
 	"_checkerNotFound":      "检查规则未找到}}",
 	"_unknownErrorTemplate": "{{未知错误}}",
@@ -44,6 +45,7 @@ var errorTemplateEnglish = map[string]string{
 	"phone":          " is not a valid phone number",
 	"idcard":         " is not a valid ID card number",
 	"equal":          " the value before and after is not the same",
+	"list":           " is not a valid value",
 
 	"_checkerNotFound":      " check rule not found}}",
 	"_unknownErrorTemplate": "{{unknown error}}",
