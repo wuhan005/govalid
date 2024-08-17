@@ -737,3 +737,63 @@ func Test_UserDefinedError(t *testing.T) {
 		assert.Equal(t, "是错误的年龄呢~", errs[0].Error())
 	})
 }
+
+func Test_NestedStruct(t *testing.T) {
+	type order struct {
+		FieldUID  string `valid:"required"`
+		OrderType string `valid:"list:asc,desc"`
+	}
+
+	type view struct {
+		Field string `valid:"required"`
+		Order order
+	}
+
+	t.Run("ok", func(t *testing.T) {
+		v := view{
+			Field: "name",
+			Order: order{
+				FieldUID:  "name",
+				OrderType: "asc",
+			},
+		}
+
+		errs, ok := Check(v)
+		assert.True(t, ok)
+		assert.Equal(t, 0, len(errs))
+	})
+
+	t.Run("unexpected orderType", func(t *testing.T) {
+		v := view{
+			Field: "name",
+			Order: order{
+				FieldUID:  "name",
+				OrderType: "123",
+			},
+		}
+
+		errs, ok := Check(v)
+		assert.False(t, ok)
+		assert.Equal(t, 1, len(errs))
+		assert.Equal(t, "OrderType不是一个有效的值", errs[0].Error())
+	})
+
+	t.Run("nested with tag", func(t *testing.T) {
+		type view struct {
+			Field string `valid:"required"`
+			Order order  `valid:"required"`
+		}
+
+		v := view{
+			Field: "name",
+			Order: order{
+				FieldUID:  "name",
+				OrderType: "asc",
+			},
+		}
+
+		errs, ok := Check(v)
+		assert.True(t, ok)
+		assert.Equal(t, 0, len(errs))
+	})
+}

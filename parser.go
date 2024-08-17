@@ -1,9 +1,10 @@
 package govalid
 
 import (
-	"golang.org/x/text/language"
 	"reflect"
 	"strings"
+
+	"golang.org/x/text/language"
 )
 
 var (
@@ -50,6 +51,11 @@ func parseStruct(structType reflect.Type, structValue reflect.Value, languageTag
 			for j := 0; j < structValue.Field(i).Len(); j++ {
 				fields = append(fields, parseStruct(field.Type.Elem(), structValue.Field(i).Index(j), languageTag)...)
 			}
+		}
+
+		// Check if the field is a struct.
+		if field.Type.Kind() == reflect.Struct {
+			fields = append(fields, parseStruct(field.Type, structValue.Field(i), languageTag)...)
 		}
 
 		// Check if this field has a validator tag.
