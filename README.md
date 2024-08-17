@@ -6,9 +6,11 @@ A simple Go struct validator.
 
 ## Quick Start
 
-`go get -u github.com/wuhan005/govalid`
-
+```bash
+go get -u github.com/wuhan005/govalid
 ```
+
+```go
 v := struct {
     Name string `valid:"required;username" label:"昵称"`
     ID   int    `valid:"required;min:0;max:999" label:"用户编号"`
@@ -27,7 +29,7 @@ if !ok {
 
 Output:
 
-```
+```text
 昵称的最后一个字符不能为下划线
 用户编号应小于999
 不是合法的电子邮箱格式
@@ -35,7 +37,7 @@ Output:
 
 ## Customize Error Message
 
-```
+```go
 govalid.SetMessageTemplates(map[string]string{
     "required": "can't be null.",
     "min": "must bigger than %v.",
@@ -44,7 +46,7 @@ govalid.SetMessageTemplates(map[string]string{
 
 ## Customize Error Check Function
 
-```
+```go
 func main() {
 	// set your error message.
 	govalid.SetMessageTemplates(map[string]string{
