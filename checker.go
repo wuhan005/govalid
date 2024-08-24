@@ -390,7 +390,7 @@ func equal(c CheckerContext) *ErrContext {
 func list(c CheckerContext) *ErrContext {
 	ctx := NewErrorContext(c)
 	value := fmt.Sprintf("%v", ctx.FieldValue)
-	allowValues := strings.Split(c.Rule.params[0], ",")
+	allowValues := c.Rule.params
 	for _, v := range allowValues {
 		if value == v {
 			return nil

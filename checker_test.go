@@ -687,6 +687,15 @@ func Test_List(t *testing.T) {
 	errs, ok = Check(v)
 	assert.True(t, ok)
 	assert.Nil(t, errs)
+
+	v = struct {
+		Role string `valid:"list:admin,editor,viewer" label:"角色"`
+	}{
+		Role: "editor",
+	}
+	errs, ok = Check(v)
+	assert.True(t, ok)
+	assert.Nil(t, errs)
 }
 
 func Test_StructSlice(t *testing.T) {
