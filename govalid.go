@@ -10,6 +10,7 @@ import (
 func Check(v interface{}, lang ...language.Tag) (errs []*ErrContext, ok bool) {
 	structType := reflect.TypeOf(v)
 	structValue := reflect.ValueOf(v)
+	validateMethod := structValue.MethodByName("Validate")
 
 	if structType.Kind() == reflect.Ptr {
 		structType = structType.Elem()
@@ -58,6 +59,16 @@ func Check(v interface{}, lang ...language.Tag) (errs []*ErrContext, ok bool) {
 
 				errs = append(errs, err)
 			}
+		}
+	}
+
+	if validateMethod.IsValid() &&
+		validateMethod.Type().NumOut() == 1 && validateMethod.Type().Out(0).Kind() == reflect.Interface {
+
+		validateResult := validateMethod.Call(nil)[0].Interface()
+		validateErr, ok := validateResult.(error)
+		if ok && validateErr != nil {
+			errs = append(errs, MakeUserDefinedError(validateErr.Error()))
 		}
 	}
 

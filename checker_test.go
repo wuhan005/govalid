@@ -1,6 +1,7 @@
 package govalid
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -802,6 +803,54 @@ func Test_NestedStruct(t *testing.T) {
 		}
 
 		errs, ok := Check(v)
+		assert.True(t, ok)
+		assert.Equal(t, 0, len(errs))
+	})
+}
+
+type inputForm struct {
+	Name string `valid:"required"`
+	Age  int    `valid:"required;min:0;max:100"`
+}
+
+func (f *inputForm) Validate() error {
+	if f.Name != "e99" {
+		return errors.New("name is not e99")
+	}
+	return nil
+}
+
+func Test_ValidateMethod(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		input := &inputForm{
+			Name: "e99",
+			Age:  24,
+		}
+
+		errs, ok := Check(input)
+		assert.True(t, ok)
+		assert.Equal(t, 0, len(errs))
+	})
+
+	t.Run("ptr struct error", func(t *testing.T) {
+		input := &inputForm{
+			Name: "e99p1ant",
+			Age:  24,
+		}
+
+		errs, ok := Check(input)
+		assert.False(t, ok)
+		assert.Equal(t, 1, len(errs))
+		assert.Equal(t, "name is not e99", errs[0].errorMessage)
+	})
+
+	t.Run("struct no error", func(t *testing.T) {
+		input := inputForm{
+			Name: "e99p1ant",
+			Age:  24,
+		}
+
+		errs, ok := Check(input)
 		assert.True(t, ok)
 		assert.Equal(t, 0, len(errs))
 	})
