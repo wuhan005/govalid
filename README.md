@@ -37,48 +37,86 @@ Output:
 
 ## Customize Error Message
 
+`SetMessageTemplates` merges the given templates into the current language's
+template set, overriding any existing entries.
+
 ```go
 govalid.SetMessageTemplates(map[string]string{
-    "required": "can't be null.",
-    "min": "must bigger than %v.",
+    "required": "can not be null",
+    "min":      "must be greater than",
 })
+```
+
+You can also pass a language tag to update a specific locale:
+
+```go
+govalid.SetMessageTemplates(map[string]string{
+    "required": "must not be empty",
+}, language.English)
 ```
 
 ## Customize Error Check Function
 
 ```go
+package main
+
+import (
+    "fmt"
+    "strings"
+
+    "github.com/wuhan005/govalid"
+)
+
 func main() {
-	// set your error message.
-	govalid.SetMessageTemplates(map[string]string{
-		"mycheck": "content cann't contain 'e99'.",
-	})
+    // Set the error message for the new check rule.
+    govalid.SetMessageTemplates(map[string]string{
+        "mycheck": "content can not contain 'e99'",
+    })
 
-	// add new check function
-	govalid.Checkers["mycheck"] = func(c govalid.CheckerContext) *govalid.ErrContext {
-		errCtx := govalid.NewErrorContext(c)
-		value, ok := ctx.Value.(string)
-		if !ok {
-			return MakeCheckerParamError(c)
-		}
-		if strings.Contains(value, "e99") {
-			return ctx
-		}
-		// if the check passed, return nil.
-		return nil
-	}
+    // Add a new check function.
+    govalid.Checkers["mycheck"] = func(c govalid.CheckerContext) *govalid.ErrContext {
+        value, ok := c.FieldValue.(string)
+        if !ok {
+            return govalid.MakeValueTypeError(c)
+        }
+        if strings.Contains(value, "e99") {
+            return govalid.NewErrorContext(c)
+        }
+        // If the check passed, return nil.
+        return nil
+    }
 
-	r := struct {
-		Content string `valid:"mycheck"`
-	}{
-		"helloe99",
-	}
+    r := struct {
+        Content string `valid:"mycheck"`
+    }{
+        Content: "helloe99",
+    }
 
-    errs, ok := govalid.Check(v)
+    errs, ok := govalid.Check(r)
     if !ok {
         for _, err := range errs {
             fmt.Println(err)
         }
     }
+}
+```
+
+## Custom `Validate` Method
+
+Any struct that implements a `Validate() error` method is automatically called
+after the tag-based rules. Use it for cross-field or business rule validation:
+
+```go
+type Form struct {
+    Password       string `valid:"required" label:"密码"`
+    RepeatPassword string `valid:"required" label:"重复密码"`
+}
+
+func (f *Form) Validate() error {
+    if f.Password != f.RepeatPassword {
+        return errors.New("两次输入的密码不一致")
+    }
+    return nil
 }
 ```
 

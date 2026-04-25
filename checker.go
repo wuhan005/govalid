@@ -56,11 +56,25 @@ func required(c CheckerContext) *ErrContext {
 		return errCtx
 	}
 
-	// If field is a slice, then check if it is empty.
-	if c.FieldType.Kind() == reflect.Slice {
+	// Length-aware kinds (slice/array/map/string/chan) are considered empty
+	// when their length is zero. Doing this before the zero-value comparison
+	// also avoids "comparing uncomparable type" panics for maps and slices.
+	switch c.FieldType.Kind() {
+	case reflect.Slice, reflect.Array, reflect.Map, reflect.String, reflect.Chan:
 		if reflect.ValueOf(c.FieldValue).Len() == 0 {
 			return errCtx
 		}
+		return nil
+	case reflect.Ptr, reflect.Interface, reflect.Func:
+		if reflect.ValueOf(c.FieldValue).IsNil() {
+			return errCtx
+		}
+		return nil
+	}
+
+	// Skip incomparable types to keep reflect.Value.Interface() == FieldValue
+	// from panicking.
+	if !c.FieldType.Comparable() {
 		return nil
 	}
 
@@ -83,6 +97,10 @@ func minOrMax(c CheckerContext, flag string) *ErrContext {
 	ctx := NewErrorContext(c)
 	if len(c.Rule.params) != 1 {
 		return MakeCheckerParamError(c)
+	}
+
+	if c.FieldValue == nil {
+		return MakeValueTypeError(c)
 	}
 
 	limitStr := c.Rule.params[0]
@@ -176,12 +194,26 @@ func minOrMaxLen(c CheckerContext, flag string) *ErrContext {
 	}
 	ctx.SetFieldLimitValue(limit)
 
-	if c.FieldValue == "" {
-		return nil
+	if c.FieldValue == nil {
+		return MakeValueTypeError(c)
 	}
 
-	value := fmt.Sprintf("%s", c.FieldValue)
-	length := utf8.RuneCountInString(value)
+	var length int
+	switch reflect.TypeOf(c.FieldValue).Kind() {
+	case reflect.String:
+		s := c.FieldValue.(string)
+		// Empty strings short-circuit to "no error" for parity with other
+		// string-aware checkers (alphaDash/email/...).
+		if s == "" {
+			return nil
+		}
+		length = utf8.RuneCountInString(s)
+	case reflect.Slice, reflect.Array, reflect.Map:
+		length = reflect.ValueOf(c.FieldValue).Len()
+	default:
+		return MakeValueTypeError(c)
+	}
+
 	if flag == "min" {
 		if int64(length) < limit {
 			return ctx
@@ -195,12 +227,17 @@ func minOrMaxLen(c CheckerContext, flag string) *ErrContext {
 }
 
 func alpha(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.ValueOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
-	for _, v := range c.FieldValue.(string) {
+	value := c.FieldValue.(string)
+	if value == "" {
+		return nil
+	}
+
+	ctx := NewErrorContext(c)
+	for _, v := range value {
 		if v < 'A' || (v > 'Z' && v < 'a') || v > 'z' {
 			return ctx
 		}
@@ -209,12 +246,17 @@ func alpha(c CheckerContext) *ErrContext {
 }
 
 func alphaNumeric(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
-	for _, v := range c.FieldValue.(string) {
+	value := c.FieldValue.(string)
+	if value == "" {
+		return nil
+	}
+
+	ctx := NewErrorContext(c)
+	for _, v := range value {
 		if ('Z' < v || v < 'A') && ('z' < v || v < 'a') && ('9' < v || v < '0') {
 			return ctx
 		}
@@ -222,9 +264,10 @@ func alphaNumeric(c CheckerContext) *ErrContext {
 	return nil
 }
 
+var alphaDashPattern = regexp.MustCompile(`^\w+$`)
+
 func alphaDash(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 	value := c.FieldValue.(string)
@@ -232,15 +275,14 @@ func alphaDash(c CheckerContext) *ErrContext {
 		return nil
 	}
 
-	if !regexp.MustCompile(`^\w+$`).MatchString(value) {
-		return ctx
+	if !alphaDashPattern.MatchString(value) {
+		return NewErrorContext(c)
 	}
 	return nil
 }
 
 func userName(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
@@ -251,56 +293,61 @@ func userName(c CheckerContext) *ErrContext {
 
 	// is alpha dash.
 	if ctx := alphaDash(c); ctx != nil {
-		ctx.SetTemplate("firstCharAlpha")
+		ctx.SetTemplate("alphadash")
 		return ctx
 	}
 
-	// first char must be a alpha.
+	// first char must be a alpha. Use the first rune (not byte) so multi-byte
+	// characters are handled correctly.
+	firstRune, _ := utf8.DecodeRuneInString(value)
 	tmp := c
-	tmp.FieldValue = fmt.Sprintf("%c", c.FieldValue.(string)[0])
+	tmp.FieldValue = string(firstRune)
 	if ctx := alpha(tmp); ctx != nil {
 		ctx.SetTemplate("firstCharAlpha")
 		return ctx
 	}
 
 	// last char can't be dash.
-	if strings.HasSuffix(c.FieldValue.(string), "_") {
+	if strings.HasSuffix(value, "_") {
+		ctx := NewErrorContext(c)
 		ctx.SetTemplate("lastUnderline")
 		return ctx
 	}
 	return nil
 }
 
+// emailPattern is compiled once on package init to avoid re-compiling on
+// every email() invocation.
+var emailPattern = regexp.MustCompile(`^[\w!#$%&'*+/=?^_` + "`" + `{|}~-]+(?:\.[\w!#$%&'*+/=?^_` + "`" + `{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[a-zA-Z0-9](?:[\w-]*[\w])?$`)
+
 func email(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
-	value := ctx.FieldValue.(string)
+	value := c.FieldValue.(string)
 	if value == "" {
 		return nil
 	}
-	emailPattern := `^[\w!#$%&'*+/=?^_` + "`" + `{|}~-]+(?:\.[\w!#$%&'*+/=?^_` + "`" + `{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[a-zA-Z0-9](?:[\w-]*[\w])?$`
-	if !regexp.MustCompile(emailPattern).MatchString(value) {
-		return ctx
+	if !emailPattern.MatchString(value) {
+		return NewErrorContext(c)
 	}
 	return nil
 }
 
+var ipv4Pattern = regexp.MustCompile(`^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$`)
+
 func ipv4(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
-	value := ctx.FieldValue.(string)
+	value := c.FieldValue.(string)
 	if value == "" {
 		return nil
 	}
-	ipv4Pattern := regexp.MustCompile(`^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$`)
 	if !ipv4Pattern.MatchString(value) {
-		return ctx
+		return NewErrorContext(c)
 	}
 	return nil
 }
@@ -310,33 +357,33 @@ func ipv4(c CheckerContext) *ErrContext {
 var MobilePattern = regexp.MustCompile(`^(?:\+?86)?1(?:3\d{3}|5[^4\D]\d{2}|8\d{3}|7(?:[0-35-9]\d{2}|4(?:0\d|1[0-2]|9\d))|9[0-35-9]\d{2}|6[2567]\d{2}|4(?:(?:10|4[01])\d{3}|[68]\d{4}|[579]\d{2}))\d{6}$`)
 
 func mobile(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
-	value := ctx.FieldValue.(string)
+	value := c.FieldValue.(string)
 	if value == "" {
 		return nil
 	}
 	if !MobilePattern.MatchString(value) {
-		return ctx
+		return NewErrorContext(c)
 	}
 	return nil
 }
 
+var telPattern = regexp.MustCompile(`^(0\d{2,3}(-)?)?\d{7,8}$`)
+
 func tel(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
-	value := ctx.FieldValue.(string)
+	value := c.FieldValue.(string)
 	if value == "" {
 		return nil
 	}
-	if !regexp.MustCompile(`^(0\d{2,3}(\-)?)?\d{7,8}$`).MatchString(value) {
-		return ctx
+	if !telPattern.MatchString(value) {
+		return NewErrorContext(c)
 	}
 	return nil
 }
@@ -348,31 +395,36 @@ func phone(c CheckerContext) *ErrContext {
 		return nil
 	}
 
-	if telErrCtx != nil {
-		return telErrCtx
-	}
-	return mobileErrCtx
+	// Both forms failed; surface a single, dedicated "phone" error so the
+	// message reads naturally instead of mentioning either tel or mobile.
+	ctx := NewErrorContext(c)
+	return ctx
 }
 
+var idCardPattern = regexp.MustCompile(`(^\d{15}$)|(^\d{17}([0-9Xx])$)`)
+
 func idCard(c CheckerContext) *ErrContext {
-	ctx := NewErrorContext(c)
-	if reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
+	if c.FieldValue == nil || reflect.TypeOf(c.FieldValue).Kind() != reflect.String {
 		return MakeValueTypeError(c)
 	}
 
-	value := ctx.FieldValue.(string)
+	value := c.FieldValue.(string)
 	if value == "" {
 		return nil
 	}
-	if !regexp.MustCompile(`(^\d{15}$)|(^\d{17}([0-9X])$)`).MatchString(value) {
-		return ctx
+	if !idCardPattern.MatchString(value) {
+		return NewErrorContext(c)
 	}
 	return nil
 }
 
 func equal(c CheckerContext) *ErrContext {
+	if len(c.Rule.params) != 1 || c.Rule.params[0] == "" {
+		return MakeCheckerParamError(c)
+	}
+
 	ctx := NewErrorContext(c)
-	value := fmt.Sprintf("%v", ctx.FieldValue)
+	value := fmt.Sprintf("%v", c.FieldValue)
 	equalField := c.Rule.params[0]
 
 	for i := 0; i < c.StructValue.Type().NumField(); i++ {
@@ -388,10 +440,26 @@ func equal(c CheckerContext) *ErrContext {
 }
 
 func list(c CheckerContext) *ErrContext {
+	// `valid:"list:"` is parsed as a single empty param. Treat both the
+	// empty slice and a slice of only empty strings as a missing-param
+	// error so callers can't accidentally allow only the empty value.
+	if len(c.Rule.params) == 0 {
+		return MakeCheckerParamError(c)
+	}
+	hasNonEmpty := false
+	for _, p := range c.Rule.params {
+		if p != "" {
+			hasNonEmpty = true
+			break
+		}
+	}
+	if !hasNonEmpty {
+		return MakeCheckerParamError(c)
+	}
+
 	ctx := NewErrorContext(c)
-	value := fmt.Sprintf("%v", ctx.FieldValue)
-	allowValues := c.Rule.params
-	for _, v := range allowValues {
+	value := fmt.Sprintf("%v", c.FieldValue)
+	for _, v := range c.Rule.params {
 		if value == v {
 			return nil
 		}

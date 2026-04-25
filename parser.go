@@ -46,6 +46,16 @@ func parseStruct(structType reflect.Type, structValue reflect.Value, languageTag
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
 
+		// Skip unexported fields. They can't be read via reflection without
+		// panicking on Interface(), which historically blew up the whole
+		// validator the moment any struct contained a private field.
+		// reflect.StructField.PkgPath is empty for exported fields and is
+		// the field's package path for unexported ones — this works on
+		// older Go versions that lack IsExported().
+		if field.PkgPath != "" {
+			continue
+		}
+
 		// Check if the field is a struct slice.
 		if field.Type.Kind() == reflect.Slice && field.Type.Elem().Kind() == reflect.Struct {
 			for j := 0; j < structValue.Field(i).Len(); j++ {

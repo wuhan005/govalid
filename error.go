@@ -2,8 +2,9 @@ package govalid
 
 import (
 	"fmt"
-	"golang.org/x/text/language"
 	"strings"
+
+	"golang.org/x/text/language"
 )
 
 var _ error = (*ErrContext)(nil)

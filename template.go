@@ -1,5 +1,33 @@
 package govalid
 
+import "golang.org/x/text/language"
+
+// SetMessageTemplates merges the given templates into the current language's
+// template set, overriding any existing entries. The language defaults to
+// the package default (Chinese) when no language is specified.
+//
+// Example:
+//
+//	govalid.SetMessageTemplates(map[string]string{
+//	    "required": "can not be null",
+//	    "min":      "must be greater than",
+//	})
+func SetMessageTemplates(templates map[string]string, lang ...language.Tag) {
+	tag := defaultTemplateLanguage
+	if len(lang) > 0 {
+		tag = lang[0]
+	}
+
+	target, ok := errorTemplateSet[tag]
+	if !ok {
+		target = make(map[string]string, len(templates))
+		errorTemplateSet[tag] = target
+	}
+	for k, v := range templates {
+		target[k] = v
+	}
+}
+
 var errorTemplateChinese = map[string]string{
 	"required":       "不能为空",
 	"min":            "应大于",
