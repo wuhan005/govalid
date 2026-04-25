@@ -84,8 +84,13 @@ func (e *ErrContext) SetFieldLimitValue(v interface{}) {
 	e.makeMessage()
 }
 
+// SetTemplate replaces the underlying template. Any previously set limit
+// value is cleared because the new template has no semantic relationship
+// with the old one (otherwise messages like "name can not be empty<old
+// limit>" would leak across templates).
 func (e *ErrContext) SetTemplate(key string) {
 	e.errorTemplate = getErrorTemplate(key, e.TemplateLanguage)
+	e.fieldLimitValue = nil
 	e.makeMessage()
 }
 

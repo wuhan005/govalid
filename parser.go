@@ -52,7 +52,12 @@ func parseStruct(structType reflect.Type, structValue reflect.Value, languageTag
 		// reflect.StructField.PkgPath is empty for exported fields and is
 		// the field's package path for unexported ones — this works on
 		// older Go versions that lack IsExported().
-		if field.PkgPath != "" {
+		//
+		// Embedded (anonymous) struct fields are an exception: even when
+		// the embedded type itself is unexported, the *outer* fields it
+		// promotes may be exported and validatable, so we recurse into
+		// them rather than skipping the whole tree.
+		if field.PkgPath != "" && !field.Anonymous {
 			continue
 		}
 
@@ -66,6 +71,14 @@ func parseStruct(structType reflect.Type, structValue reflect.Value, languageTag
 		// Check if the field is a struct.
 		if field.Type.Kind() == reflect.Struct {
 			fields = append(fields, parseStruct(field.Type, structValue.Field(i), languageTag)...)
+		}
+
+		// Anonymous unexported fields can't have their value extracted via
+		// Interface(), so any valid tag on the field itself is unreachable
+		// at runtime. Recursion above already covered their *exported*
+		// children — skip the tag-driven path here to avoid a panic.
+		if field.PkgPath != "" {
+			continue
 		}
 
 		// Check if this field has a validator tag.

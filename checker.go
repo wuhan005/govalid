@@ -423,12 +423,20 @@ func equal(c CheckerContext) *ErrContext {
 		return MakeCheckerParamError(c)
 	}
 
+	// equal needs the surrounding struct to compare another field. If a
+	// caller invokes the checker directly with a zero StructValue (or a
+	// non-struct value), there's nothing to compare to.
+	if !c.StructValue.IsValid() || c.StructValue.Kind() != reflect.Struct {
+		return MakeFieldNotFoundError(c)
+	}
+
 	ctx := NewErrorContext(c)
 	value := fmt.Sprintf("%v", c.FieldValue)
 	equalField := c.Rule.params[0]
 
-	for i := 0; i < c.StructValue.Type().NumField(); i++ {
-		if c.StructValue.Type().Field(i).Name == equalField {
+	structType := c.StructValue.Type()
+	for i := 0; i < structType.NumField(); i++ {
+		if structType.Field(i).Name == equalField {
 			equalFieldValue := fmt.Sprintf("%v", c.StructValue.Field(i).Interface())
 			if value != equalFieldValue {
 				return ctx
