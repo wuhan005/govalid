@@ -2,7 +2,6 @@ package govalid
 
 import (
 	"math"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -771,9 +770,3 @@ func Test_required_Extra(t *testing.T) {
 		assert.True(t, ok)
 	})
 }
-
-// =============================================================================
-// Helpers used by other test files in this package can rely on small utilities
-// =============================================================================
-
-func contains(s, sub string) bool { return strings.Contains(s, sub) }
