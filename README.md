@@ -3,7 +3,8 @@
 A simple, struct-tag driven validator for Go.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/wuhan005/govalid.svg)](https://pkg.go.dev/github.com/wuhan005/govalid)
-[![Go Report Card](https://goreportcard.com/badge/github.com/wuhan005/govalid)](https://goreportcard.com/report/github.com/wuhan005/govalid)
+[![Go](https://github.com/wuhan005/govalid/actions/workflows/go.yml/badge.svg)](https://github.com/wuhan005/govalid/actions/workflows/go.yml)
+[![codecov](https://codecov.io/gh/wuhan005/govalid/graph/badge.svg?token=9WNWb5RQ4c)](https://codecov.io/gh/wuhan005/govalid)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 - **Tag-based** — declare rules right next to your struct fields.
