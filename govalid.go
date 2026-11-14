@@ -20,7 +20,7 @@ func Check(v interface{}, lang ...language.Tag) (errs []*ErrContext, ok bool) {
 	// and value receivers are discoverable when callers pass a value.
 	validateMethod := structValue.MethodByName("Validate")
 
-	if structType.Kind() == reflect.Ptr {
+	if structType.Kind() == reflect.Pointer {
 		// Guard against nil pointer dereference. Without this, the call to
 		// reflect.Value.Field below would panic on a typed nil pointer.
 		if structValue.IsNil() {

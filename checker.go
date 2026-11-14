@@ -65,7 +65,7 @@ func required(c CheckerContext) *ErrContext {
 			return errCtx
 		}
 		return nil
-	case reflect.Ptr, reflect.Interface, reflect.Func:
+	case reflect.Pointer, reflect.Interface, reflect.Func:
 		if reflect.ValueOf(c.FieldValue).IsNil() {
 			return errCtx
 		}

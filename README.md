@@ -19,7 +19,7 @@ A simple, struct-tag driven validator for Go.
 go get -u github.com/wuhan005/govalid
 ```
 
-Requires Go 1.16+.
+Requires Go 1.27+.
 
 ## Quick Start
 
