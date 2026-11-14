@@ -46,6 +46,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -56,5 +59,20 @@ jobs:
           cache: true
           cache-dependency-path: go.sum
       - name: Run tests
-        run: go test -v -race ./...
+        run: go run gotest.tools/gotestsum@v1.13.0 --format standard-verbose --junitfile junit.xml -- -race -coverprofile=coverage.out ./...
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() && hashFiles('coverage.out') != '' }}
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: coverage.out
+          disable_search: true
+          use_oidc: true
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: junit.xml
+          report_type: test_results
+          disable_search: true
+          use_oidc: true
 
